@@ -40,6 +40,7 @@ def main():
 
     # 예측
     y_pred = model.predict(X_test_scaled)
+    y_prob = model.predict_proba(X_test_scaled)[:, 1]
 
     # 평가
     print("Accuracy:", accuracy_score(y_test, y_pred))
@@ -47,6 +48,17 @@ def main():
     print(confusion_matrix(y_test, y_pred))
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
+
+    # 예측 확률 확인
+    result_df = X_test.copy()
+    result_df["actual_churn"] = y_test.values
+    result_df["predicted_churn"] = y_pred
+    result_df["churn_probability"] = y_prob
+
+    result_df = result_df.sort_values(by="churn_probability", ascending=False)
+
+    print("\nTop 10 High-Risk Customers:")
+    print(result_df.head(10))
 
     # 계수 확인
     coef_df = pd.DataFrame({
