@@ -109,5 +109,14 @@ def main():
     print("\nTop 10 High-Risk Customers (Random Forest):")
     print(rf_result_df.head(10))
 
+    result_df["risk_segment"] = pd.cut(
+    result_df["churn_probability"],
+    bins=[0, 0.4, 0.6, 0.8, 1.0],
+    labels=["low", "medium", "high", "very_high"]
+    )
+
+    print("\nRisk Segment Distribution:")
+    print(result_df["risk_segment"].value_counts())
+
 if __name__ == "__main__":
     main()
