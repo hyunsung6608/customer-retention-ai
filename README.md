@@ -165,6 +165,10 @@ data/processed/time_based_labeled_dataset.csv
 | V2      | Recency-based label without Recency   | ~0.74    | ~0.67          | Validation step |
 | V3      | Time-based dataset (final)            | **0.66** | **0.67**       | Realistic model |
 
+The performance trend clearly shows the impact of data leakage and the effectiveness of the time-based redesign.
+
+![Model Comparison](outputs/model_performance_comparison.png)
+
 ---
 
 ## 📈 Final Results (Time-Based Model)
@@ -183,16 +187,18 @@ data/processed/time_based_labeled_dataset.csv
 
 ---
 
-## 🔍 Key Insights
+## 📈 Feature Insights
 
-Customers are more likely to churn if they:
+![Feature Importance](outputs/feature_importance_logistic.png)
 
-* Have high Recency (long inactivity)
-* Have low Frequency (few purchases)
-* Spend less (low Monetary)
-* Have long purchase intervals
+The model shows that customer behavior patterns are strong indicators of churn:
 
-👉 **Low engagement customers are at higher risk of churn**
+* Customers with higher **Recency** (long inactivity) are more likely to churn
+* Customers with lower **Frequency** are more likely to churn
+* Customers with shorter **customer tenure** tend to churn more
+* Customers with longer **purchase intervals** have higher churn risk
+
+👉 **Low engagement customers are more likely to churn**
 
 ---
 
@@ -247,11 +253,15 @@ customer-retention-ai/
 │   ├── create_time_based_dataset.py
 │   ├── create_past_features.py
 │   ├── create_future_churn_label.py
-│   └── train_model.py
+│   ├── train_model.py
+│   └── visualize_results.py
+│
+├── outputs/
+│   ├── model_performance_comparison.png
+│   └── feature_importance_logistic.png
 │
 ├── notebooks/
 ├── models/
-├── outputs/
 ├── config/
 │
 ├── README.md
