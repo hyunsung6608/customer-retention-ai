@@ -209,11 +209,22 @@ The model shows that customer behavior patterns are strong indicators of churn:
 
 ## 🎯 Risk Segmentation
 
-Customers are segmented based on churn probability:
+Customers are classified based on churn probability:
 
-* High Risk
-* Medium Risk
-* Low Risk
+* 0.0–0.5 → Low Risk  
+* 0.5–0.6 → Medium Risk  
+* 0.6–0.7 → High Risk  
+* 0.7+ → Very High Risk  
+
+This threshold-based segmentation allows targeted retention strategies based on predicted churn probability.
+
+---
+
+### Current Distribution
+- Low Risk: 339
+- Medium Risk: 148
+- High Risk: 132
+- Very High Risk: 45
 
 ---
 

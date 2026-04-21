@@ -50,6 +50,8 @@ def main():
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
 
+    print("ROC-AUC:", roc_auc_score(y_test, y_prob))
+
     # 예측 확률 확인
     result_df = X_test.copy()
     result_df["actual_churn"] = y_test.values
@@ -60,6 +62,19 @@ def main():
 
     print("\nTop 10 High-Risk Customers:")
     print(result_df.head(10))
+
+    # risk segment 분류
+    result_df["risk_segment"] = pd.cut(
+        result_df["churn_probability"],
+        bins=[0, 0.5, 0.6, 0.7, 1.0],
+        labels=["low", "medium", "high", "very_high"],
+        include_lowest=True
+    )
+
+    result_df = result_df.sort_values(by="churn_probability", ascending=False)
+
+    print("\nRisk Segment Distribution:")
+    print(result_df["risk_segment"].value_counts())
 
     # 계수 확인
     coef_df = pd.DataFrame({
@@ -90,8 +105,6 @@ def main():
     print("\nClassification Report:")
     print(classification_report(y_test, rf_y_pred))
 
-    print("ROC-AUC:", roc_auc_score(y_test, y_prob))
-
     # Feature Importance
     rf_importance_df = pd.DataFrame({
         "Feature": feature_cols,
@@ -112,14 +125,6 @@ def main():
     print("\nTop 10 High-Risk Customers (Random Forest):")
     print(rf_result_df.head(10))
 
-    result_df["risk_segment"] = pd.cut(
-    result_df["churn_probability"],
-    bins=[0, 0.4, 0.6, 0.8, 1.0],
-    labels=["low", "medium", "high", "very_high"]
-    )
-
-    print("\nRisk Segment Distribution:")
-    print(result_df["risk_segment"].value_counts())
 
 if __name__ == "__main__":
     main()
