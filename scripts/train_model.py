@@ -14,7 +14,6 @@ def main():
 
     # 사용할 feature 선택
     feature_cols = [
-        "Recency",
         "Frequency",
         "Monetary",
         "customer_tenure",
