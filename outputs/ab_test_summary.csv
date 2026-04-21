@@ -1,0 +1,8 @@
+﻿metric,value
+high_risk_threshold,0.579145853728946
+control_churn_rate,0.7272727272727273
+treatment_churn_rate,0.56
+absolute_lift,0.16727272727272724
+relative_lift,0.22999999999999995
+z_stat,2.4628338507062097
+p_value,0.013784377633121453

@@ -11,6 +11,12 @@ def main():
     project_root = Path(__file__).resolve().parent.parent
     input_path = project_root / "data" / "processed" / "time_based_labeled_dataset.csv"
 
+    output_dir = project_root / "data" / "processed"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logistic_output_path = output_dir / "logistic_churn_predictions.csv"
+    rf_output_path = output_dir / "rf_churn_predictions.csv"
+
     df = pd.read_csv(input_path)
 
     # 사용할 feature 선택
@@ -85,6 +91,9 @@ def main():
     print("\nFeature Importance (Logistic Coefficients):")
     print(coef_df)
 
+    result_df.to_csv(logistic_output_path, index=False, encoding="utf-8-sig")
+    print(f"\nLogistic 예측 결과 저장 완료: {logistic_output_path}")
+
     # Random Forest 모델 학습
     rf_model = RandomForestClassifier(
         n_estimators=100,
@@ -124,6 +133,19 @@ def main():
 
     print("\nTop 10 High-Risk Customers (Random Forest):")
     print(rf_result_df.head(10))
+
+    rf_result_df["risk_segment"] = pd.cut(
+        rf_result_df["churn_probability"],
+        bins=[0, 0.5, 0.6, 0.7, 1.0],
+        labels=["low", "medium", "high", "very_high"],
+        include_lowest=True
+    )
+
+    print("\nRisk Segment Distribution (Random Forest):")
+    print(rf_result_df["risk_segment"].value_counts())
+
+    rf_result_df.to_csv(rf_output_path, index=False, encoding="utf-8-sig")
+    print(f"\nRandom Forest 예측 결과 저장 완료: {rf_output_path}")
 
 
 if __name__ == "__main__":

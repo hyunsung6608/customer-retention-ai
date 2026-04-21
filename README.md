@@ -35,6 +35,7 @@ Raw Data
 → Churn Prediction
 → Risk Segmentation
 → Retention Strategy
+→ A/B Test Simulation
 ```
 
 ---
@@ -93,13 +94,11 @@ To validate this, Recency was removed and the model was retrained:
 
 * Accuracy dropped to ~0.74
 
-👉 This confirmed that the model was relying on leakage rather than learning real patterns.
+This confirmed that the model was relying on leakage rather than learning real patterns.
 
 ---
 
 ## 🔁 Solution: Time-Based Data Design
-
-To resolve data leakage, the dataset was redesigned to reflect a real-world prediction scenario.
 
 ### Key Idea
 
@@ -120,8 +119,8 @@ snapshot_date = 2011-09-01
 
 ### Step 2: Data Split
 
-* **Past Data** → used for feature generation
-* **Future Data** → used for churn labeling
+* Past Data → used for feature generation
+* Future Data → used for churn labeling
 
 ```
 data/processed/past_data.csv
@@ -140,7 +139,7 @@ data/processed/past_customer_features.csv
 
 ### Step 4: Future-Based Churn Label
 
-Customers are labeled as churn if they **do not purchase within 90 days after the snapshot date**.
+Customers are labeled as churn if they do not purchase within 90 days after the snapshot date.
 
 ```
 data/processed/time_based_labeled_dataset.csv
@@ -152,8 +151,8 @@ data/processed/time_based_labeled_dataset.csv
 
 ### Models Used
 
-* Logistic Regression (baseline)
-* Random Forest (comparison)
+* Logistic Regression
+* Random Forest
 
 ---
 
@@ -163,15 +162,13 @@ data/processed/time_based_labeled_dataset.csv
 | ------- | ------------------------------------- | -------- | -------------- | --------------- |
 | V1      | Recency-based label + Recency feature | ~0.99    | ~1.00          | Data leakage    |
 | V2      | Recency-based label without Recency   | ~0.74    | ~0.67          | Validation step |
-| V3      | Time-based dataset (final)            | **0.66** | **0.67**       | Realistic model |
-
-The performance trend clearly shows the impact of data leakage and the effectiveness of the time-based redesign.
+| V3      | Time-based dataset                    | **0.66** | **0.67**       | Realistic model |
 
 ![Model Comparison](outputs/model_performance_comparison.png)
 
 ---
 
-## 📈 Final Results (Time-Based Model)
+## 📈 Final Results
 
 ### Logistic Regression
 
@@ -184,11 +181,7 @@ The performance trend clearly shows the impact of data leakage and the effective
 * Accuracy: 0.62
 * Recall (churn): 0.52
 
-👉 Logistic Regression was selected as the final model.
-
-👉 The ROC-AUC score of 0.72 indicates that the model has a reasonable ability to distinguish between churn and non-churn customers.
-
-👉 Although the overall accuracy is lower than the initial model, this reflects a more realistic performance after removing data leakage and redesigning the dataset using a time-based approach.
+Logistic Regression was selected as the final model.
 
 ---
 
@@ -196,14 +189,12 @@ The performance trend clearly shows the impact of data leakage and the effective
 
 ![Feature Importance](outputs/feature_importance_logistic.png)
 
-The model shows that customer behavior patterns are strong indicators of churn:
+* High Recency → higher churn risk
+* Low Frequency → higher churn risk
+* Short tenure → higher churn risk
+* Long purchase interval → higher churn risk
 
-* Customers with higher **Recency** (long inactivity) are more likely to churn
-* Customers with lower **Frequency** are more likely to churn
-* Customers with shorter **customer tenure** tend to churn more
-* Customers with longer **purchase intervals** have higher churn risk
-
-👉 **Low engagement customers are more likely to churn**
+Low engagement customers are more likely to churn.
 
 ---
 
@@ -211,20 +202,19 @@ The model shows that customer behavior patterns are strong indicators of churn:
 
 Customers are classified based on churn probability:
 
-* 0.0–0.5 → Low Risk  
-* 0.5–0.6 → Medium Risk  
-* 0.6–0.7 → High Risk  
-* 0.7+ → Very High Risk  
-
-This threshold-based segmentation allows targeted retention strategies based on predicted churn probability.
+* 0.0–0.5 → Low Risk
+* 0.5–0.6 → Medium Risk
+* 0.6–0.7 → High Risk
+* 0.7+ → Very High Risk
 
 ---
 
 ### Current Distribution
-- Low Risk: 339
-- Medium Risk: 148
-- High Risk: 132
-- Very High Risk: 45
+
+* Low Risk: 339
+* Medium Risk: 148
+* High Risk: 132
+* Very High Risk: 45
 
 ---
 
@@ -246,6 +236,63 @@ This threshold-based segmentation allows targeted retention strategies based on 
 
 ---
 
+## 🧪 A/B Test Simulation
+
+### Objective
+
+To validate whether targeting high-risk customers with retention strategies can effectively reduce churn.
+
+---
+
+### Experiment Design
+
+* Target: Top 30% customers by churn probability
+* Control: no action
+* Treatment: retention strategy applied (simulated)
+* Assumption: churn probability reduced by **8%p**
+
+---
+
+### Result
+
+| Group     | Customers | Churn Rate |
+| --------- | --------: | ---------: |
+| Control   |        99 |      72.7% |
+| Treatment |       100 |      56.0% |
+
+* Absolute Lift: **16.7%p decrease**
+* Relative Improvement: **23.0% improvement**
+
+---
+
+### Statistical Significance
+
+* p-value: 0.013
+
+The result is statistically significant (p < 0.05).
+
+---
+
+### Visualization
+
+![A/B Test Result](outputs/ab_test_result.png)
+
+---
+
+### Interpretation
+
+Retention strategies targeting high-risk customers can significantly reduce churn.
+
+This project connects prediction results to real business decision-making validation.
+
+---
+
+### Note
+
+This experiment is based on simulation, not real campaign data.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -261,7 +308,11 @@ customer-retention-ai/
 │       ├── past_data.csv
 │       ├── future_data.csv
 │       ├── past_customer_features.csv
-│       └── time_based_labeled_dataset.csv
+│       ├── time_based_labeled_dataset.csv
+│       ├── logistic_churn_predictions.csv
+│       ├── rf_churn_predictions.csv
+│       ├── ab_test_summary.csv
+│       └── ab_test_customers.csv
 │
 ├── scripts/
 │   ├── preprocess.py
@@ -270,11 +321,13 @@ customer-retention-ai/
 │   ├── create_past_features.py
 │   ├── create_future_churn_label.py
 │   ├── train_model.py
+│   ├── simulate_ab_test.py
 │   └── visualize_results.py
 │
 ├── outputs/
 │   ├── model_performance_comparison.png
-│   └── feature_importance_logistic.png
+│   ├── feature_importance_logistic.png
+│   └── ab_test_result.png
 │
 ├── notebooks/
 ├── models/
@@ -290,9 +343,10 @@ customer-retention-ai/
 ## 🧠 Key Takeaways
 
 1. Data leakage can significantly distort model performance
-2. Time-based dataset design is essential for realistic prediction
-3. Customer engagement metrics are strong predictors of churn
+2. Time-based dataset design is essential
+3. Customer behavior is a strong predictor of churn
 4. Machine learning outputs should be connected to business actions
+5. A/B testing enables validation of data-driven strategies
 
 ---
 
@@ -300,6 +354,8 @@ customer-retention-ai/
 
 * Python (pandas, numpy)
 * scikit-learn
+* statsmodels
+* matplotlib
 * Git & GitHub
 
 ---
@@ -308,4 +364,4 @@ customer-retention-ai/
 
 This project demonstrates the transition from basic data analysis to a production-style machine learning pipeline.
 
-By identifying and resolving data leakage through time-based dataset design, the model was improved to reflect a real-world churn prediction scenario and successfully connected to actionable retention strategies.
+It not only predicts churn but also validates retention strategies through simulation, bridging the gap between machine learning and real-world decision-making.
