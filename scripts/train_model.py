@@ -8,12 +8,13 @@ from sklearn.ensemble import RandomForestClassifier
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
-    input_path = project_root / "data" / "processed" / "customer_features_labeled.csv"
+    input_path = project_root / "data" / "processed" / "time_based_labeled_dataset.csv"
 
     df = pd.read_csv(input_path)
 
     # 사용할 feature 선택
     feature_cols = [
+        "Recency",
         "Frequency",
         "Monetary",
         "customer_tenure",
