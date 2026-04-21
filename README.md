@@ -177,6 +177,7 @@ The performance trend clearly shows the impact of data leakage and the effective
 
 * Accuracy: **0.66**
 * Recall (churn): **0.67**
+* ROC-AUC: **0.72**
 
 ### Random Forest
 
@@ -184,6 +185,10 @@ The performance trend clearly shows the impact of data leakage and the effective
 * Recall (churn): 0.52
 
 👉 Logistic Regression was selected as the final model.
+
+👉 The ROC-AUC score of 0.72 indicates that the model has a reasonable ability to distinguish between churn and non-churn customers.
+
+👉 Although the overall accuracy is lower than the initial model, this reflects a more realistic performance after removing data leakage and redesigning the dataset using a time-based approach.
 
 ---
 

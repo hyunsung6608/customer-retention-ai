@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
@@ -88,6 +89,8 @@ def main():
     print(confusion_matrix(y_test, rf_y_pred))
     print("\nClassification Report:")
     print(classification_report(y_test, rf_y_pred))
+
+    print("ROC-AUC:", roc_auc_score(y_test, y_prob))
 
     # Feature Importance
     rf_importance_df = pd.DataFrame({
