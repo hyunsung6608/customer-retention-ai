@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-
+from sklearn.ensemble import RandomForestClassifier
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
@@ -34,7 +34,7 @@ def main():
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # 모델 학습
+    # LogisticRegression 모델 학습
     model = LogisticRegression(random_state=42)
     model.fit(X_train_scaled, y_train)
 
@@ -69,6 +69,45 @@ def main():
     print("\nFeature Importance (Logistic Coefficients):")
     print(coef_df)
 
+    # Random Forest 모델 학습
+    rf_model = RandomForestClassifier(
+        n_estimators=100,
+        random_state=42,
+        class_weight="balanced"
+    )
+    rf_model.fit(X_train, y_train)
+
+    # 예측
+    rf_y_pred = rf_model.predict(X_test)
+    rf_y_prob = rf_model.predict_proba(X_test)[:, 1]
+
+    # 평가
+    print("\n===== Random Forest =====")
+    print("Accuracy:", accuracy_score(y_test, rf_y_pred))
+    print("\nConfusion Matrix:")
+    print(confusion_matrix(y_test, rf_y_pred))
+    print("\nClassification Report:")
+    print(classification_report(y_test, rf_y_pred))
+
+    # Feature Importance
+    rf_importance_df = pd.DataFrame({
+        "Feature": feature_cols,
+        "Importance": rf_model.feature_importances_
+    }).sort_values(by="Importance", ascending=False)
+
+    print("\nFeature Importance (Random Forest):")
+    print(rf_importance_df)
+
+    # 확률 기준 상위 위험 고객
+    rf_result_df = X_test.copy()
+    rf_result_df["actual_churn"] = y_test.values
+    rf_result_df["predicted_churn"] = rf_y_pred
+    rf_result_df["churn_probability"] = rf_y_prob
+
+    rf_result_df = rf_result_df.sort_values(by="churn_probability", ascending=False)
+
+    print("\nTop 10 High-Risk Customers (Random Forest):")
+    print(rf_result_df.head(10))
 
 if __name__ == "__main__":
     main()
