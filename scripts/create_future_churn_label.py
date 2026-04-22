@@ -19,7 +19,7 @@ def main():
     # snapshot 이후 90일 이내 구매한 고객 찾기
     active_future_customers = future_df[
         (future_df["InvoiceDate"] >= snapshot_date) &
-        (future_df["InvoiceDate"] < churn_window_end)
+        (future_df["InvoiceDate"] < churn_window_end + pd.Timedelta(days=1))
     ]["CustomerID"].dropna().astype(int).unique()
 
     active_future_customers = set(active_future_customers)
