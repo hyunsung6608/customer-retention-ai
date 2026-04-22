@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -11,7 +12,7 @@ def main():
     project_root = Path(__file__).resolve().parent.parent
     input_path = project_root / "data" / "processed" / "time_based_labeled_dataset.csv"
 
-    output_dir = project_root / "data" / "processed"
+    output_dir = project_root / "outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     logistic_output_path = output_dir / "logistic_churn_predictions.csv"
@@ -105,7 +106,20 @@ def main():
     }).sort_values(by="Coefficient", ascending=False)
 
     print("\nFeature Importance (Logistic Coefficients):")
-    print(coef_df)
+    print(coef_df.sort_values(by="Coefficient", ascending=False))
+
+    coef_plot_df = coef_df.reindex(
+        coef_df["Coefficient"].abs().sort_values(ascending=True).index
+    )
+
+    plt.figure(figsize=(8, 5))
+    plt.barh(coef_plot_df["Feature"], coef_plot_df["Coefficient"])
+    plt.xlabel("Coefficient")
+    plt.ylabel("Feature")
+    plt.title("Feature Importance (Logistic Regression Coefficients)")
+    plt.tight_layout()
+    plt.savefig(output_dir / "feature_importance_logistic.png", dpi=300)
+    plt.close()
 
     result_df.to_csv(logistic_output_path, index=False, encoding="utf-8-sig")
     print(f"\nLogistic 예측 결과 저장 완료: {logistic_output_path}")
