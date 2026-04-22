@@ -5,6 +5,8 @@ from pathlib import Path
 
 def plot_model_performance(output_dir: Path) -> None:
     models = ["V1 (Leakage)", "V2 (No Recency)", "V3 (Time-based)"]
+    
+    # Experiment summary metrics used for model-version comparison
     accuracy = [0.99, 0.74, 0.66]
     recall = [1.00, 0.67, 0.67]
 
@@ -17,7 +19,7 @@ def plot_model_performance(output_dir: Path) -> None:
     plt.xticks(list(x), models)
     plt.xlabel("Model Version")
     plt.ylabel("Score")
-    plt.title("Model Performance Comparison")
+    plt.title("Model Version Comparison (Experiment Summary)")
     plt.ylim(0, 1.05)
     plt.legend()
     plt.tight_layout()

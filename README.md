@@ -209,7 +209,9 @@ Customers are classified based on churn probability:
 
 ---
 
-### Current Distribution
+### Current Distribution (Test Set)
+
+The following distribution is based on the logistic regression prediction results from the test set, not the full customer population.
 
 * Low Risk: 339
 * Medium Risk: 148
