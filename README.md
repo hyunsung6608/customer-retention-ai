@@ -300,6 +300,8 @@ This experiment is based on simulation, not real campaign data.
 
 ## 📁 Project Structure
 
+Some directories (e.g., `notebooks/`, `models/`, `config/`) are reserved for future extensions such as experimentation, model persistence, and configuration management.
+
 ```
 customer-retention-ai/
 │
