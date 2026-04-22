@@ -141,6 +141,9 @@ data/processed/past_customer_features.csv
 
 Customers are labeled as churn if they do not purchase within 90 days after the snapshot date.
 
+An earlier version of churn labeling (`create_churn_label.py`) was used in a baseline experiment that included data leakage.  
+The final pipeline uses `create_future_churn_label.py` to generate time-based labels without leakage.
+
 ```
 data/processed/time_based_labeled_dataset.csv
 ```
