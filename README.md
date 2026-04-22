@@ -365,3 +365,36 @@ customer-retention-ai/
 This project demonstrates the transition from basic data analysis to a production-style machine learning pipeline.
 
 It not only predicts churn but also validates retention strategies through simulation, bridging the gap between machine learning and real-world decision-making.
+
+## 🚀 How to Run
+
+### 1. Clone repository
+git clone https://github.com/hyunsung6608/customer-retention-ai.git
+cd customer-retention-ai
+
+### 2. Install dependencies
+pip install -r requirements.txt
+
+### 3. Run data preprocessing
+python scripts/preprocess.py
+
+### 4. Feature engineering
+python scripts/feature_engineering.py
+
+### 5. Create time-based dataset
+python scripts/create_time_based_dataset.py
+
+### 6. Create past features (leakage prevention)
+python scripts/create_past_features.py
+
+### 7. Create churn label (future window)
+python scripts/create_future_churn_label.py
+
+### 8. Train model
+python scripts/train_model.py
+
+### 9. Run A/B test simulation
+python scripts/simulate_ab_test.py
+
+### 10. Generate visualizations
+python scripts/visualize_results.py
