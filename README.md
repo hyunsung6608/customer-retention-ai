@@ -310,9 +310,7 @@ customer-retention-ai/
 │       ├── past_customer_features.csv
 │       ├── time_based_labeled_dataset.csv
 │       ├── logistic_churn_predictions.csv
-│       ├── rf_churn_predictions.csv
-│       ├── ab_test_summary.csv
-│       └── ab_test_customers.csv
+│       └── rf_churn_predictions.csv
 │
 ├── scripts/
 │   ├── preprocess.py
@@ -327,6 +325,8 @@ customer-retention-ai/
 ├── outputs/
 │   ├── model_performance_comparison.png
 │   ├── feature_importance_logistic.png
+│   ├── ab_test_customers.csv
+│   ├── ab_test_summary.csv
 │   └── ab_test_result.png
 │
 ├── notebooks/

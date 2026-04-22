@@ -8,9 +8,6 @@ def main():
     project_root = Path(__file__).resolve().parent.parent
     input_path = project_root / "data" / "processed" / "logistic_churn_predictions.csv"
 
-    output_dir = project_root / "data" / "processed"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
     output_dir = project_root / "outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
 
