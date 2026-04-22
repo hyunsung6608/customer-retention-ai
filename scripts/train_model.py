@@ -29,11 +29,12 @@ def main():
     ]
 
     X = df[feature_cols]
+    customer_ids = df["CustomerID"]
     y = df["churn"]
 
     # 학습/테스트 데이터 분리
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+    X_train, X_test, y_train, y_test, id_train, id_test = train_test_split(
+        X, y, customer_ids, test_size=0.2, random_state=42, stratify=y
     )
 
     # 스케일링
@@ -63,6 +64,21 @@ def main():
     result_df["actual_churn"] = y_test.values
     result_df["predicted_churn"] = y_pred
     result_df["churn_probability"] = y_prob
+    result_df["CustomerID"] = id_test.values
+
+    result_df = result_df[
+        [
+            "CustomerID",
+            "Recency",
+            "Frequency",
+            "Monetary",
+            "customer_tenure",
+            "avg_purchase_interval",
+            "actual_churn",
+            "predicted_churn",
+            "churn_probability"
+        ]
+    ]
 
     result_df = result_df.sort_values(by="churn_probability", ascending=False)
 
@@ -113,6 +129,7 @@ def main():
     print(confusion_matrix(y_test, rf_y_pred))
     print("\nClassification Report:")
     print(classification_report(y_test, rf_y_pred))
+    print("ROC-AUC: ", roc_auc_score(y_test, rf_y_prob))
 
     # Feature Importance
     rf_importance_df = pd.DataFrame({
@@ -128,6 +145,21 @@ def main():
     rf_result_df["actual_churn"] = y_test.values
     rf_result_df["predicted_churn"] = rf_y_pred
     rf_result_df["churn_probability"] = rf_y_prob
+    rf_result_df["CustomerID"] = id_test.values
+
+    rf_result_df = rf_result_df[
+        [
+            "CustomerID",
+            "Recency",
+            "Frequency",
+            "Monetary",
+            "customer_tenure",
+            "avg_purchase_interval",
+            "actual_churn",
+            "predicted_churn",
+            "churn_probability"
+        ]
+    ]
 
     rf_result_df = rf_result_df.sort_values(by="churn_probability", ascending=False)
 
