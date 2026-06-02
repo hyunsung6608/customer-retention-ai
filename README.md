@@ -165,7 +165,7 @@ data/processed/time_based_labeled_dataset.csv
 | ------- | ------------------------------------- | -------- | -------------- | --------------- |
 | V1      | Recency-based label + Recency feature | ~0.99    | ~1.00          | Data leakage    |
 | V2      | Recency-based label without Recency   | ~0.74    | ~0.67          | Validation step |
-| V3      | Time-based dataset                    | **0.66** | **0.67**       | Realistic model |
+| V3      | Time-based dataset                    | **0.68** | **0.72**       | Realistic model |
 
 ![Model Comparison](outputs/model_performance_comparison.png)
 
@@ -175,14 +175,15 @@ data/processed/time_based_labeled_dataset.csv
 
 ### Logistic Regression
 
-* Accuracy: **0.66**
-* Recall (churn): **0.67**
-* ROC-AUC: **0.72**
+* Accuracy: **0.68**
+* Recall (churn): **0.72**
+* ROC-AUC: **0.74**
 
 ### Random Forest
 
-* Accuracy: 0.62
-* Recall (churn): 0.52
+* Accuracy: **0.63**
+* Recall (churn): **0.54**
+* ROC-AUC: **0.69**
 
 Logistic Regression was selected as the final model.
 
@@ -216,10 +217,10 @@ Customers are classified based on churn probability:
 
 The following distribution is based on the logistic regression prediction results from the test set, not the full customer population.
 
-* Low Risk: 339
-* Medium Risk: 148
-* High Risk: 132
-* Very High Risk: 45
+* Low Risk: 321
+* Medium Risk: 186
+* High Risk: 122
+* Very High Risk: 35
 
 ---
 
@@ -312,16 +313,16 @@ customer-retention-ai/
 │   └── processed/
 │       ├── cleaned_retail.csv
 │       ├── customer_features.csv
+│       ├── customer_features_labeled.csv
 │       ├── past_data.csv
 │       ├── future_data.csv
 │       ├── past_customer_features.csv
-│       ├── time_based_labeled_dataset.csv
-│       ├── logistic_churn_predictions.csv
-│       └── rf_churn_predictions.csv
+│       └── time_based_labeled_dataset.csv
 │
 ├── scripts/
 │   ├── preprocess.py
 │   ├── feature_engineering.py
+│   ├── create_churn_label.py
 │   ├── create_time_based_dataset.py
 │   ├── create_past_features.py
 │   ├── create_future_churn_label.py
@@ -332,6 +333,8 @@ customer-retention-ai/
 ├── outputs/
 │   ├── model_performance_comparison.png
 │   ├── feature_importance_logistic.png
+│   ├── logistic_churn_predictions.csv
+│   ├── rf_churn_predictions.csv
 │   ├── ab_test_customers.csv
 │   ├── ab_test_summary.csv
 │   └── ab_test_result.png
@@ -376,32 +379,62 @@ It not only predicts churn but also validates retention strategies through simul
 ## 🚀 How to Run
 
 ### 1. Clone repository
+
+```bash
 git clone https://github.com/hyunsung6608/customer-retention-ai.git
 cd customer-retention-ai
+```
 
 ### 2. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
 ### 3. Run data preprocessing
+
+```bash
 python scripts/preprocess.py
+```
 
 ### 4. Feature engineering
+
+```bash
 python scripts/feature_engineering.py
+```
 
 ### 5. Create time-based dataset
+
+```bash
 python scripts/create_time_based_dataset.py
+```
 
 ### 6. Create past features (leakage prevention)
+
+```bash
 python scripts/create_past_features.py
+```
 
 ### 7. Create churn label (future window)
+
+```bash
 python scripts/create_future_churn_label.py
+```
 
 ### 8. Train model
+
+```bash
 python scripts/train_model.py
+```
 
 ### 9. Run A/B test simulation
+
+```bash
 python scripts/simulate_ab_test.py
+```
 
 ### 10. Generate visualizations
+
+```bash
 python scripts/visualize_results.py
+```

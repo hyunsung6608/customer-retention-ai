@@ -1,10 +1,10 @@
 # Python cache
 __pycache__/
-*.__pycache__
 
 # virtual environment
 venv/
 .env
+.env.*
 
 # data files
 data/raw/*.csv
