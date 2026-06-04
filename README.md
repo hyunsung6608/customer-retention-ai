@@ -26,7 +26,7 @@ more realistic and reliable model.
   for higher Recall on churn class (0.72 vs 0.54), 
   prioritizing detection over precision
 - A/B simulation showed **22.2% churn reduction** 
-  in treatment group (p=0.013), validating model-driven targeting
+  in treatment group (p=0.0219), validating model-driven targeting
 - Demonstrated full pipeline from raw data 
   to business decision validation
 
