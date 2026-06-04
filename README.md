@@ -2,18 +2,46 @@
 
 ## 📌 Overview
 
-This project builds an end-to-end customer retention analytics system that predicts customer churn using transactional data and connects predictions to actionable retention strategies.
+Customer churn is one of the most costly problems in retail.
+Acquiring a new customer costs 5–7x more than retaining 
+an existing one, making early churn detection critical 
+for business sustainability.
 
-Starting from basic RFM analysis, the project evolves into a machine learning pipeline and addresses a critical issue in modeling — **data leakage** — by redesigning the dataset using a time-based approach.
+This project builds an end-to-end churn prediction pipeline 
+— from raw transaction data to model-driven retention strategy 
+— and validates its effectiveness through A/B test simulation.
+
+Key highlight: During development, a data leakage issue 
+(Accuracy ~0.99) was identified and resolved by redesigning 
+the dataset using a time-based approach, resulting in a 
+more realistic and reliable model.
+
+---
+
+## ⚡ Key Highlights
+
+- Identified and resolved **data leakage** 
+  (Accuracy 0.99 → 0.68) through time-based dataset redesign
+- Selected **Logistic Regression** over Random Forest 
+  for higher Recall on churn class (0.72 vs 0.54), 
+  prioritizing detection over precision
+- A/B simulation showed **22.2% churn reduction** 
+  in treatment group (p=0.013), validating model-driven targeting
+- Demonstrated full pipeline from raw data 
+  to business decision validation
 
 ---
 
 ## 🎯 Objective
 
-* Predict customers who are likely to churn
-* Identify key behavioral drivers of churn
-* Segment customers based on risk levels
-* Design retention strategies based on model outputs
+* Detect high-risk customers before they churn, 
+  enabling proactive intervention
+* Identify which behavioral signals best predict churn 
+  (recency, frequency, purchase interval)
+* Prioritize retention budget by risk tier 
+  (Very High / High / Medium / Low)
+* Validate that model-driven targeting reduces churn 
+  vs. no-action baseline (A/B simulation)
 
 ---
 
@@ -23,7 +51,7 @@ Starting from basic RFM analysis, the project evolves into a machine learning pi
 * Source: UCI Machine Learning Repository - Online Retail Dataset
 * Transaction-level customer purchase data
 
-The raw dataset is not included in thsi repository.
+The raw dataset is not included in this repository.
 
 ---
 
@@ -188,7 +216,9 @@ data/processed/time_based_labeled_dataset.csv
 * Recall (churn): **0.54**
 * ROC-AUC: **0.69**
 
-Logistic Regression was selected as the final model.
+Logistic Regression was selected as the final model due to higher Recall on the churn class (0.72 vs 0.54), 
+as missing a churning customer is more costly than 
+a false alarm.
 
 ---
 
