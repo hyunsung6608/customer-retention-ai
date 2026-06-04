@@ -263,17 +263,17 @@ To validate whether targeting high-risk customers with retention strategies can 
 
 | Group     | Customers | Churn Rate |
 | --------- | --------: | ---------: |
-| Control   |        99 |      72.7% |
-| Treatment |       100 |      56.0% |
+| Control   |        99 |      70.7% |
+| Treatment |       100 |      55.0% |
 
-* Absolute Lift: **16.7%p decrease**
-* Relative Improvement: **23.0% improvement**
+* Absolute Lift: **15.7%p decrease**
+* Relative Improvement: **22.2% improvement**
 
 ---
 
 ### Statistical Significance
 
-* p-value: 0.013
+* p-value: 0.0219
 
 The result is statistically significant (p < 0.05).
 
