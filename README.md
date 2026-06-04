@@ -20,7 +20,10 @@ Starting from basic RFM analysis, the project evolves into a machine learning pi
 ## 📂 Dataset
 
 * **Online Retail Dataset**
+* Source: UCI Machine Learning Repository - Online Retail Dataset
 * Transaction-level customer purchase data
+
+The raw dataset is not included in thsi repository.
 
 ---
 
@@ -308,7 +311,7 @@ customer-retention-ai/
 │
 ├── data/
 │   ├── raw/
-│   │   └── online_retail.csv
+│   │   └── online_retail.csv   # manually downloaded, not committed
 │   │
 │   └── processed/
 │       ├── cleaned_retail.csv
@@ -347,6 +350,30 @@ customer-retention-ai/
 ├── requirements.txt
 └── .gitignore
 ```
+
+---
+
+## 📥 Dataset Preparation
+
+This project uses the **Online Retail Dataset** from the UCI Machine Learning Repository.
+
+To run this project locally:
+
+1. Download the Online Retail dataset from the UCI Machine Learning Repository.
+2. Convert or save the dataset as `online_retail.csv`.
+3. Place the file in the following path:
+
+```text
+data/raw/online_retail.csv
+```
+
+The raw dataset is not included in this repository because it is excluded by `.gitignore`.
+
+```gitignore
+data/raw/*.csv
+```
+
+This keeps the repository lightweight and avoids committing raw external data.
 
 ---
 
@@ -391,49 +418,57 @@ cd customer-retention-ai
 pip install -r requirements.txt
 ```
 
-### 3. Run data preprocessing
+### 3. Prepare dataset
+
+Download the Online Retail dataset, save it as `online_retail.csv`, and place it in:
+
+```text
+data/raw/online_retail.csv
+```
+
+### 4. Run data preprocessing
 
 ```bash
 python scripts/preprocess.py
 ```
 
-### 4. Feature engineering
+### 5. Feature engineering
 
 ```bash
 python scripts/feature_engineering.py
 ```
 
-### 5. Create time-based dataset
+### 6. Create time-based dataset
 
 ```bash
 python scripts/create_time_based_dataset.py
 ```
 
-### 6. Create past features (leakage prevention)
+### 7. Create past features for leakage prevention
 
 ```bash
 python scripts/create_past_features.py
 ```
 
-### 7. Create churn label (future window)
+### 8. Create churn label using future window
 
 ```bash
 python scripts/create_future_churn_label.py
 ```
 
-### 8. Train model
+### 9. Train model
 
 ```bash
 python scripts/train_model.py
 ```
 
-### 9. Run A/B test simulation
+### 10. Run A/B test simulation
 
 ```bash
 python scripts/simulate_ab_test.py
 ```
 
-### 10. Generate visualizations
+### 11. Generate model comparison visualization
 
 ```bash
 python scripts/visualize_results.py
