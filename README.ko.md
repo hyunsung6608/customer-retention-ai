@@ -172,8 +172,8 @@ data/processed/time_based_labeled_dataset.csv
 
 ### 사용 모델
 
-* Logistic Regression
-* Random Forest
+* Logistic Regression : StandaradScaler 적용 (거리 기반 모델)
+* Random Forest : 스케일링 없음 (트리기반 모델, 스케일 불변)
 
 ---
 

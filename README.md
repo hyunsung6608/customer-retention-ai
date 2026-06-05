@@ -185,8 +185,8 @@ data/processed/time_based_labeled_dataset.csv
 
 ### Models Used
 
-* Logistic Regression
-* Random Forest
+* Logistic Regression : StandardScaler applied (Distance-based model)
+* Random Forest : No scaling(Tree-based model, scale-invariant)
 
 ---
 

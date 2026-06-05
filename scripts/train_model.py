@@ -125,6 +125,7 @@ def main():
     print(f"\nLogistic 예측 결과 저장 완료: {logistic_output_path}")
 
     # Random Forest 모델 학습
+    # 트리 기반 모델로 피처 스케일에 영향을 받지 않아 스케일링 없이 원본 데이터로 학습
     rf_model = RandomForestClassifier(
         n_estimators=100,
         random_state=42,
