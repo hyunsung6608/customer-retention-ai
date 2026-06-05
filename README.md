@@ -462,44 +462,54 @@ data/raw/online_retail.csv
 python scripts/preprocess.py
 ```
 
-### 5. Feature engineering
-
-```bash
-python scripts/feature_engineering.py
-```
-
-### 6. Create time-based dataset
+### 5. Create time-based dataset
 
 ```bash
 python scripts/create_time_based_dataset.py
 ```
 
-### 7. Create past features for leakage prevention
+### 6. Create past features for leakage prevention
 
 ```bash
 python scripts/create_past_features.py
 ```
 
-### 8. Create churn label using future window
+### 7. Create churn label using future window
 
 ```bash
 python scripts/create_future_churn_label.py
 ```
 
-### 9. Train model
+### 8. Train model
 
 ```bash
 python scripts/train_model.py
 ```
 
-### 10. Run A/B test simulation
+### 9. Run A/B test simulation
 
 ```bash
 python scripts/simulate_ab_test.py
 ```
 
-### 11. Generate model comparison visualization
+### 10. Generate model comparison visualization
 
 ```bash
 python scripts/visualize_results.py
 ```
+
+## 🔬 Reproducing the Data Leakage Experiment (Optional)
+The following scripts are not part of the final pipeline.
+They are provided to reproduce the initial data leakage experiment described in the Data Leakage section.
+
+```bash
+# Step 1: Generate customer-level features from full dataset
+python scripts/feature_engineering.py
+
+# Step 2: Assign churn labels using Recency threshold (leakage-prone)
+python scripts/create_churn_label.py
+```
+
+⚠️ These scripts use Recency as both a feature and the basis for churn labeling,
+which causes data leakage and results in unrealistically high accuracy (~0.99).
+Do not use these outputs for model training.

@@ -444,44 +444,53 @@ data/raw/online_retail.csv
 python scripts/preprocess.py
 ```
 
-### 5. 피처 엔지니어링
-
-```bash
-python scripts/feature_engineering.py
-```
-
-### 6. 시계열 기반 데이터셋 생성
+### 5. 시계열 기반 데이터셋 생성
 
 ```bash
 python scripts/create_time_based_dataset.py
 ```
 
-### 7. 누수 방지를 위한 과거 피처 생성
+### 6. 누수 방지를 위한 과거 피처 생성
 
 ```bash
 python scripts/create_past_features.py
 ```
 
-### 8. 미래 윈도우 기반 이탈 레이블 생성
+### 7. 미래 윈도우 기반 이탈 레이블 생성
 
 ```bash
 python scripts/create_future_churn_label.py
 ```
 
-### 9. 모델 학습
+### 8. 모델 학습
 
 ```bash
 python scripts/train_model.py
 ```
 
-### 10. A/B 테스트 시뮬레이션 실행
+### 9. A/B 테스트 시뮬레이션 실행
 
 ```bash
 python scripts/simulate_ab_test.py
 ```
 
-### 11. 모델 비교 시각화 생성
+### 10. 모델 비교 시각화 생성
 
 ```bash
 python scripts/visualize_results.py
 ```
+
+## 🔬 데이터 누수 실험 재현 (선택사항)
+아래 스크립트는 최종 파이프라인과 무관합니다.
+데이터 누수 섹션에서 설명한 초기 실험을 직접 재현해보고 싶을 때 사용합니다.
+
+```bash
+# Step 1: 전체 데이터셋 기반 고객 피처 생성
+python scripts/feature_engineering.py
+
+# Step 2: Recency 임계값 기반 이탈 레이블 생성 (누수 포함)
+python scripts/create_churn_label.py
+```
+
+⚠️ 이 스크립트들은 Recency를 피처와 레이블 생성 기준으로 동시에 사용하여 데이터 누수가 발생하고 정확도가 비현실적으로 높게 (~0.99) 나옵니다.
+이 결과물을 모델 학습에 사용하지 마세요.
