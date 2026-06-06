@@ -4,11 +4,30 @@ from pathlib import Path
 
 
 def plot_model_performance(output_dir: Path) -> None:
+    # V1, V2 : 데이터 누수 실험 기록값 (별도 스크립트 없음, 재현 불가)
+    # V3 : model_metrics.csv에서 읽어옴
+
+    v1_accuracy, v1_recall = 0.99, 1.00
+    v2_accuracy, v2_recall = 0.74, 0.67
+
+    metrics_path = output_dir / "model_metrics.csv"
+
+    if not metrics_path.exists():
+        raise FileNotFoundError(
+            f"model_metrics.csv not found at {metrics_path}\n"
+            "train_model.py를 먼저 실행해 주세요: python scripts/train_model.py"
+        )
+
+    metrics_df = pd.read_csv(metrics_path)
+    lr_row = metrics_df[metrics_df["model"] == "logistic"].iloc[0]
+
+    v3_accuracy = lr_row["accuracy"]
+    v3_recall = lr_row["recall_churn"]
+
+
     models = ["V1 (Leakage)", "V2 (No Recency)", "V3 (Time-based)"]
-    
-    # Experiment summary metrics used for model-version comparison
-    accuracy = [0.99, 0.74, 0.68]
-    recall = [1.00, 0.67, 0.72]
+    accuracy = [v1_accuracy, v2_accuracy, v3_accuracy]
+    recall = [v1_recall, v2_recall, v3_recall]
 
     x = range(len(models))
 

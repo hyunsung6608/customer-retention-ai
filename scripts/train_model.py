@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, recall_score
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
@@ -17,6 +17,7 @@ def main():
 
     logistic_output_path = output_dir / "logistic_churn_predictions.csv"
     rf_output_path = output_dir / "rf_churn_predictions.csv"
+    metrics_output_path = output_dir / "model_metrics.csv"
 
     df = pd.read_csv(input_path)
 
@@ -52,13 +53,16 @@ def main():
     y_prob = model.predict_proba(X_test_scaled)[:, 1]
 
     # 평가
-    print("Accuracy:", accuracy_score(y_test, y_pred))
+    lr_accuracy = accuracy_score(y_test, y_pred)
+    lr_recall = recall_score(y_test, y_pred)
+    lr_roc_auc = roc_auc_score(y_test, y_prob)
+
+    print("Accuracy:", lr_accuracy)
     print("\nConfusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
-
-    print("ROC-AUC:", roc_auc_score(y_test, y_prob))
+    print("ROC-AUC:", lr_roc_auc)
 
     # 예측 확률 확인
     result_df = X_test.copy()
@@ -138,13 +142,17 @@ def main():
     rf_y_prob = rf_model.predict_proba(X_test)[:, 1]
 
     # 평가
+    rf_accuracy = accuracy_score(y_test, rf_y_pred)
+    rf_recall = recall_score(y_test, rf_y_pred)
+    rf_roc_auc = roc_auc_score(y_test, rf_y_prob)
+
     print("\n===== Random Forest =====")
-    print("Accuracy:", accuracy_score(y_test, rf_y_pred))
+    print("Accuracy:", rf_accuracy)
     print("\nConfusion Matrix:")
     print(confusion_matrix(y_test, rf_y_pred))
     print("\nClassification Report:")
     print(classification_report(y_test, rf_y_pred))
-    print("ROC-AUC: ", roc_auc_score(y_test, rf_y_prob))
+    print("ROC-AUC: ", rf_roc_auc)
 
     # Feature Importance
     rf_importance_df = pd.DataFrame({
@@ -194,6 +202,16 @@ def main():
     rf_result_df.to_csv(rf_output_path, index=False, encoding="utf-8-sig")
     print(f"\nRandom Forest 예측 결과 저장 완료: {rf_output_path}")
 
+    # V3 모델 metrics 저장
+    metrics_df = pd.DataFrame({
+        "model": ["logistic", "random_forest"],
+        "accuracy": [lr_accuracy, rf_accuracy],
+        "recall_churn": [lr_recall, rf_recall],
+        "roc_auc": [lr_roc_auc, rf_roc_auc]
+    })
+
+    metrics_df.to_csv(metrics_output_path, index=False, encoding="utf-8-sig")
+    print(f"\nV3 모델 metrics 저장 완료: {metrics_output_path}")
 
 if __name__ == "__main__":
     main()
