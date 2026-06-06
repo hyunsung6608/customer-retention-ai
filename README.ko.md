@@ -350,6 +350,7 @@ customer-retention-ai/
 │   └── visualize_results.py
 │
 ├── outputs/
+│   ├── model_metrics.csv
 │   ├── model_performance_comparison.png
 │   ├── feature_importance_logistic.png
 │   ├── logistic_churn_predictions.csv
