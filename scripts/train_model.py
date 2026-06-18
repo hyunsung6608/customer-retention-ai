@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from sklearn.model_selection import train_test_split
@@ -84,6 +85,14 @@ def main():
             "churn_probability"
         ]
     ]
+
+    # CLV(연환산 가치) 및 expected_loss 계산
+    result_df["clv"] = np.where(
+        result_df["customer_tenure"] == 0,
+        result_df["Monetary"],
+        result_df["Monetary"] / result_df["customer_tenure"] * 365
+    )
+    result_df["expected_loss"] = result_df["churn_probability"] * result_df["clv"]
 
     result_df = result_df.sort_values(by="churn_probability", ascending=False)
 
@@ -183,6 +192,13 @@ def main():
             "churn_probability"
         ]
     ]
+
+    rf_result_df["clv"] = np.where(
+        rf_result_df["customer_tenure"] == 0,
+        rf_result_df["Monetary"],
+        rf_result_df["Monetary"] / rf_result_df["customer_tenure"] * 365
+    )
+    rf_result_df["expected_loss"] = rf_result_df["churn_probability"] * rf_result_df["clv"]
 
     rf_result_df = rf_result_df.sort_values(by="churn_probability", ascending=False)
 
