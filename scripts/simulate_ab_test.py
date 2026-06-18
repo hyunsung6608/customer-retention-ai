@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from statsmodels.stats.proportion import proportions_ztest
+from statsmodels.stats.proportion import proportions_ztest, proportion_effectsize
+from statsmodels.stats.power import NormalIndPower
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
@@ -110,6 +111,31 @@ def main():
     print(f"순이익: {net_benefit:,.0f}원")
     print(f"ROI: {roi:.2%}")
 
+    # 검정력 분석 (Power Analysis)
+    effect_size = proportion_effectsize(treatment_rate, control_rate)
+    power_model = NormalIndPower()
+
+    # 사후 검정력: 지금 샘플 크기로 이 효과를 실제로 잡아냈을 확률
+    achieved_power = power_model.power(
+        effect_size=effect_size,
+        nobs1=nobs[0],
+        alpha=0.05,
+        ratio=nobs[1] / nobs[0]
+    )
+
+    # 80% 검정력을 확보하려면 그룹당 필요한 샘플 수
+    required_n_per_group = power_model.solve_power(
+        effect_size=effect_size,
+        alpha=0.05,
+        power=0.8,
+        ratio=1
+    )
+
+    print("\n=== Power Analysis ===")
+    print(f"Effect Size (Cohen's h): {effect_size:.4f}")
+    print(f"현재 샘플 기준 사후 검정력: {achieved_power:.2%}")
+    print(f"80% 검정력 확보를 위한 그룹당 필요 샘플 수: {required_n_per_group:.0f}명")
+
     # 요약 저장
     summary_df = pd.DataFrame({
         "metric": [
@@ -124,7 +150,10 @@ def main():
             "prevented_loss_value",   
             "total_cost",             
             "net_benefit",            
-            "roi"                     
+            "roi",
+            "effect_size_cohens_h",
+            "achieved_power",
+            "required_n_per_group"               
         ],
         "value": [
             threshold,
@@ -138,7 +167,10 @@ def main():
             prevented_loss_value,      
             total_cost,                
             net_benefit,               
-            roi                        
+            roi,
+            effect_size,
+            achieved_power,
+            required_n_per_group                        
         ]
     })
 
