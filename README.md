@@ -20,15 +20,21 @@ more realistic and reliable model.
 
 ## ⚡ Key Highlights
 
+## ⚡ Key Highlights
+
 - Identified and resolved **data leakage** 
   (Accuracy 0.99 → 0.68) through time-based dataset redesign
 - Selected **Logistic Regression** over Random Forest 
   for higher Recall on churn class (0.72 vs 0.54), 
   prioritizing detection over precision
-- A/B simulation showed **22.2% churn reduction** 
-  in treatment group (p=0.0219), validating model-driven targeting
+- Introduced **CLV-weighted targeting** (expected_loss = churn_probability × CLV), 
+  uncovering and fixing a targeting bug where low-risk, high-value customers 
+  crowded out genuinely at-risk customers
+- A/B simulation on the corrected targeting showed a **32.5% relative churn reduction**, 
+  but a **power analysis revealed the sample was underpowered (39.77% power)** — 
+  demonstrating honest statistical evaluation over cherry-picked significance
 - Demonstrated full pipeline from raw data 
-  to business decision validation
+  to business decision validation, including cost-aware ROI estimation
 
 ---
 
@@ -257,6 +263,46 @@ The following distribution is based on the logistic regression prediction result
 
 ---
 
+## 💰 CLV-Weighted Targeting (Expected Loss)
+
+Churn probability alone doesn't tell the full story — a customer with a 90% 
+churn probability but minimal spend matters less to the business than a 60% 
+probability customer with high lifetime value.
+
+### CLV Definition
+
+CLV is approximated as an annualized spend rate, since raw cumulative `Monetary` 
+rewards long-tenured customers over fast, high-value newer ones:
+
+```
+CLV = Monetary / customer_tenure * 365
+```
+
+Customers with `customer_tenure == 0` (single-purchase customers) fall back to 
+raw `Monetary`, since there's no time base to annualize from.
+
+### Expected Loss
+
+```
+expected_loss = churn_probability * CLV
+```
+
+This estimates the revenue at risk per customer, used to prioritize retention budget.
+
+### A Targeting Bug, Caught and Fixed
+
+Initially, customers were ranked by `expected_loss` alone. Because CLV has a much 
+wider scale than churn_probability, the ranking ended up dominated by high-value 
+customers regardless of their actual churn risk — pulling in customers with average 
+churn_probability as low as ~38%, instead of genuinely at-risk customers (~70%+ in 
+the original experiment).
+
+**Fix:** a two-stage filter — first restrict to customers with `churn_probability >= 0.5` 
+(genuine risk), then rank the remaining pool by `expected_loss` and take the top 30%. 
+This restored a realistic risk profile in the targeted group.
+
+---
+
 ## 💡 Retention Strategy
 
 ### High-Risk Customers
@@ -279,16 +325,18 @@ The following distribution is based on the logistic regression prediction result
 
 ### Objective
 
-To validate whether targeting high-risk customers with retention strategies can effectively reduce churn.
+To validate whether targeting high-risk, high-value customers (by expected_loss) with retention strategies can effectively reduce churn.
 
 ---
 
 ### Experiment Design
 
-* Target: Top 30% customers by churn probability
+* Step 1: Filter to customers with `churn_probability >= 0.5` (genuine risk pool)
+* Step 2: Within that pool, rank by `expected_loss` (churn_probability × CLV) and take the top 30%
 * Control: no action
 * Treatment: retention strategy applied (simulated)
-* Assumption: churn probability reduced by **8%p**
+* Assumption: churn probability reduced by **8%p** — an arbitrary simulation assumption, not derived from real campaign data
+* Cost assumption: **₩5,000 per treated customer** — a placeholder, not an actual campaign cost
 
 ---
 
@@ -296,19 +344,44 @@ To validate whether targeting high-risk customers with retention strategies can 
 
 | Group     | Customers | Churn Rate |
 | --------- | --------: | ---------: |
-| Control   |        99 |      70.7% |
-| Treatment |       100 |      55.0% |
+| Control   |        45 |      51.1% |
+| Treatment |        58 |      34.5% |
 
-* Absolute Lift: **15.7%p decrease**
-* Relative Improvement: **22.2% improvement**
+* Absolute Lift: **16.6%p decrease**
+* Relative Improvement: **32.5% improvement**
 
 ---
 
 ### Statistical Significance
 
-* p-value: 0.0219
+* Z-stat: 1.6974
+* p-value: 0.0896
 
-The result is statistically significant (p < 0.05).
+Not statistically significant at the 0.05 level.
+
+---
+
+### Power Analysis
+
+* Effect Size (Cohen's h): 0.338
+* Achieved power with current sample (45 / 58): **39.77%**
+* Required sample size per group for 80% power: **138**
+
+The non-significant p-value reflects an **underpowered sample**, not an absence of effect — roughly 2.7x more customers would be needed in the targeted pool to reliably detect an effect of this size.
+
+---
+
+### ROI Analysis
+
+| Metric                  |          Value |
+| ------------------------ | -------------: |
+| Customers protected (est.) |           9.6 |
+| Prevented loss value     |        ₩45,877 |
+| Total campaign cost      |       ₩290,000 |
+| Net benefit              |      -₩244,123 |
+| ROI                      |        -84.18% |
+
+At the assumed cost of ₩5,000 per customer, campaign cost exceeded the average annualized CLV of the targeted segment (~₩4,779). This suggests that, for this risk/value tier, a lower-cost channel (e.g. email reminders) would be more appropriate than a higher-cost incentive (e.g. coupons) — or that the cost assumption itself needs replacing with real campaign cost data once available.
 
 ---
 
@@ -320,15 +393,15 @@ The result is statistically significant (p < 0.05).
 
 ### Interpretation
 
-Retention strategies targeting high-risk customers can significantly reduce churn.
+CLV-weighted targeting showed a directionally positive effect (34.5% vs 51.1% churn rate), but two caveats limit how far this can be taken at face value: the result is not statistically significant given the current sample size, and the assumed campaign cost would not have been profitable for this segment. Both statistical power and cost realism should be addressed before scaling this into a real campaign.
 
-This project connects prediction results to real business decision-making validation.
+This project connects prediction results to real business decision-making validation — including the discipline to report when a result isn't yet strong enough to act on.
 
 ---
 
 ### Note
 
-This experiment is based on simulation, not real campaign data.
+The 8%p treatment effect and the ₩5,000 cost-per-treatment are both arbitrary simulation assumptions, not derived from real campaign data.
 
 ---
 
@@ -415,7 +488,13 @@ This keeps the repository lightweight and avoids committing raw external data.
 3. Customer behavior is a strong predictor of churn
 4. Machine learning outputs should be connected to business actions
 5. A/B testing enables validation of data-driven strategies
-
+6. Statistical significance depends on sample size — a non-significant 
+   result is a signal to run a power analysis, not a verdict that the 
+   effect doesn't exist
+7. Risk probability alone isn't enough for targeting — without weighting 
+   by customer value (CLV), retention budget can be misallocated to 
+   low-value customers
+   
 ---
 
 ## 🚀 Tech Stack
