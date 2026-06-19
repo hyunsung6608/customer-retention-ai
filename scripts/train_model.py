@@ -102,8 +102,9 @@ def main():
     # risk segment 분류
     result_df["risk_segment"] = pd.cut(
         result_df["churn_probability"],
-        bins=[0, 0.5, 0.6, 0.7, 1.0],
+        bins=[0, 0.5, 0.6, 0.7, np.inf],
         labels=["low", "medium", "high", "very_high"],
+        right=False,
         include_lowest=True
     )
 
@@ -207,8 +208,9 @@ def main():
 
     rf_result_df["risk_segment"] = pd.cut(
         rf_result_df["churn_probability"],
-        bins=[0, 0.5, 0.6, 0.7, 1.0],
+        bins=[0, 0.5, 0.6, 0.7, np.inf],
         labels=["low", "medium", "high", "very_high"],
+        right=False,
         include_lowest=True
     )
 
