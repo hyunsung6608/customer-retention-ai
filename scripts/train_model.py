@@ -9,6 +9,24 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, recall_score
 
+def add_clv_and_risk_segment(df):
+    df["clv"] = np.where(
+        df["customer_tenure"] == 0,
+        df["Monetary"],
+        df["Monetary"] / df["customer_tenure"] * 365
+    )
+    df["expected_loss"] = df["churn_probability"] * df["clv"]
+
+    df["risk_segment"] = pd.cut(
+        df["churn_probability"],
+        bins=[0, 0.5, 0.6, 0.7, np.inf],
+        labels=["low", "medium", "high", "very_high"],
+        right=False,
+        include_lowest=True
+    )
+
+    return df.sort_values(by="churn_probability", ascending=False)
+
 def main():
     project_root = Path(__file__).resolve().parent.parent
     input_path = project_root / "data" / "processed" / "time_based_labeled_dataset.csv"
@@ -86,29 +104,10 @@ def main():
         ]
     ]
 
-    # CLV(연환산 가치) 및 expected_loss 계산
-    result_df["clv"] = np.where(
-        result_df["customer_tenure"] == 0,
-        result_df["Monetary"],
-        result_df["Monetary"] / result_df["customer_tenure"] * 365
-    )
-    result_df["expected_loss"] = result_df["churn_probability"] * result_df["clv"]
-
-    result_df = result_df.sort_values(by="churn_probability", ascending=False)
+    result_df = add_clv_and_risk_segment(result_df)
 
     print("\nTop 10 High-Risk Customers:")
     print(result_df.head(10))
-
-    # risk segment 분류
-    result_df["risk_segment"] = pd.cut(
-        result_df["churn_probability"],
-        bins=[0, 0.5, 0.6, 0.7, np.inf],
-        labels=["low", "medium", "high", "very_high"],
-        right=False,
-        include_lowest=True
-    )
-
-    result_df = result_df.sort_values(by="churn_probability", ascending=False)
 
     print("\nRisk Segment Distribution:")
     print(result_df["risk_segment"].value_counts())
@@ -194,25 +193,10 @@ def main():
         ]
     ]
 
-    rf_result_df["clv"] = np.where(
-        rf_result_df["customer_tenure"] == 0,
-        rf_result_df["Monetary"],
-        rf_result_df["Monetary"] / rf_result_df["customer_tenure"] * 365
-    )
-    rf_result_df["expected_loss"] = rf_result_df["churn_probability"] * rf_result_df["clv"]
-
-    rf_result_df = rf_result_df.sort_values(by="churn_probability", ascending=False)
+    rf_result_df = add_clv_and_risk_segment(rf_result_df)
 
     print("\nTop 10 High-Risk Customers (Random Forest):")
     print(rf_result_df.head(10))
-
-    rf_result_df["risk_segment"] = pd.cut(
-        rf_result_df["churn_probability"],
-        bins=[0, 0.5, 0.6, 0.7, np.inf],
-        labels=["low", "medium", "high", "very_high"],
-        right=False,
-        include_lowest=True
-    )
 
     print("\nRisk Segment Distribution (Random Forest):")
     print(rf_result_df["risk_segment"].value_counts())
