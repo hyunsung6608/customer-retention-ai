@@ -3,13 +3,15 @@
 ## 📌 Overview
 
 Customer churn is one of the most costly problems in retail.
-Acquiring a new customer costs 5–7x more than retaining 
-an existing one, making early churn detection critical 
+Acquiring a new customer is widely cited as costing significantly 
+more than retaining an existing one, making early churn detection critical 
 for business sustainability.
 
 This project builds an end-to-end churn prediction pipeline 
 — from raw transaction data to model-driven retention strategy 
-— and validates its effectiveness through A/B test simulation.
+— and evaluates its potential impact through A/B test simulation 
+(the observed effect was not statistically significant, as the 
+sample was underpowered).
 
 Key highlight: During development, a data leakage issue 
 (Accuracy ~0.99) was identified and resolved by redesigning 
@@ -17,8 +19,6 @@ the dataset using a time-based approach, resulting in a
 more realistic and reliable model.
 
 ---
-
-## ⚡ Key Highlights
 
 ## ⚡ Key Highlights
 
@@ -34,7 +34,7 @@ more realistic and reliable model.
   but a **power analysis revealed the sample was underpowered (39.77% power)** — 
   demonstrating honest statistical evaluation over cherry-picked significance
 - Demonstrated full pipeline from raw data 
-  to business decision validation, including cost-aware ROI estimation
+  to business decision evaluation, including cost-aware ROI estimation
 
 ---
 
@@ -232,9 +232,9 @@ a false alarm.
 
 ![Feature Importance](outputs/feature_importance_logistic.png)
 
-* High Recency → higher churn risk
 * Low Frequency → higher churn risk
 * Short tenure → higher churn risk
+* High Recency → higher churn risk
 * Long purchase interval → higher churn risk
 
 Low engagement customers are more likely to churn.
@@ -395,7 +395,7 @@ At the assumed cost of ₩5,000 per customer, campaign cost exceeded the average
 
 CLV-weighted targeting showed a directionally positive effect (34.5% vs 51.1% churn rate), but two caveats limit how far this can be taken at face value: the result is not statistically significant given the current sample size, and the assumed campaign cost would not have been profitable for this segment. Both statistical power and cost realism should be addressed before scaling this into a real campaign.
 
-This project connects prediction results to real business decision-making validation — including the discipline to report when a result isn't yet strong enough to act on.
+This project connects prediction results to business decision-making evaluation — including the discipline to report when a result isn't yet strong enough to act on.
 
 ---
 
@@ -412,7 +412,7 @@ Some directories (e.g., `notebooks/`, `models/`, `config/`) are reserved for fut
 ```
 customer-retention-ai/
 │
-├── data/
+├── data/                         # not committed (gitignored)
 │   ├── raw/
 │   │   └── online_retail.csv   # manually downloaded, not committed
 │   │
@@ -483,11 +483,12 @@ This keeps the repository lightweight and avoids committing raw external data.
 
 ## 🧠 Key Takeaways
 
-1. Data leakage can significantly distort model performance
-2. Time-based dataset design is essential
-3. Customer behavior is a strong predictor of churn
+1. Data leakage can severely distort model performance — an accuracy of ~0.99 should always trigger suspicion
+2. Features and labels must not share the same time window — a snapshot-based design prevents future-data leakage
+3. Frequency and customer_tenure carry the largest coefficients — engagement depth explains churn more strongly than recency alone
 4. Machine learning outputs should be connected to business actions
-5. A/B testing enables validation of data-driven strategies
+5. A/B test simulation helps frame how a strategy would be evaluated — 
+   but real validation requires a live experiment with an adequate sample size
 6. Statistical significance depends on sample size — a non-significant 
    result is a signal to run a power analysis, not a verdict that the 
    effect doesn't exist
@@ -509,9 +510,9 @@ This keeps the repository lightweight and avoids committing raw external data.
 
 ## 📌 Conclusion
 
-This project demonstrates the transition from basic data analysis to a production-style machine learning pipeline.
+This project demonstrates the transition from basic data analysis to an end-to-end ML pipeline.
 
-It not only predicts churn but also validates retention strategies through simulation, bridging the gap between machine learning and real-world decision-making.
+It not only predicts churn but also evaluates retention strategies through simulation — reporting honestly that the effect is not yet statistically significant and quantifying the sample size needed — bridging the gap between machine learning and real-world decision-making.
 
 ## 🚀 How to Run
 
