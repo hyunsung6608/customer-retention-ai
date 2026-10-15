@@ -1,90 +1,75 @@
-# 📊 AI-Powered Customer Retention Analytics
+# 📊 AI 기반 고객 이탈 예측 분석
 
-## 📌 Overview
+## 📌 프로젝트 개요
 
-Customer churn is one of the most costly problems in retail.
-Acquiring a new customer is widely cited as costing significantly 
-more than retaining an existing one, making early churn detection critical 
-for business sustainability.
+고객 이탈은 리테일 비즈니스에서 가장 큰 비용 문제 중 하나입니다.
+신규 고객을 유치하는 비용은 기존 고객을 유지하는 것보다 훨씬 크다고 알려져 있습니다.
+따라서 이탈 징후를 사전에 감지하는 것이 비즈니스 지속성에 매우 중요합니다.
 
-This project builds an end-to-end churn prediction pipeline 
-— from raw transaction data to model-driven retention strategy 
-— and evaluates its potential impact through A/B test simulation 
-(the observed effect was not statistically significant, as the 
-sample was underpowered).
+이 프로젝트는 원시 트랜잭션 데이터에서 시작해 모델 기반 리텐션 전략까지 이어지는
+end-to-end 이탈 예측 파이프라인을 구축하고, A/B 테스트 시뮬레이션으로 효과를 평가합니다
+(관찰된 효과는 표본 부족으로 통계적으로 유의하지 않았습니다).
 
-Key highlight: During development, a data leakage issue 
-(Accuracy ~0.99) was identified and resolved by redesigning 
-the dataset using a time-based approach, resulting in a 
-more realistic and reliable model.
+**핵심 포인트:** 개발 과정에서 데이터 누수(Data Leakage) 문제(정확도 ~0.99)를
+직접 발견하고, 시계열 기반 데이터셋 재설계를 통해 해결했습니다.
 
 ---
 
-## ⚡ Key Highlights
+## ⚡ 핵심 성과
 
-- Identified and resolved **data leakage** 
-  (Accuracy 0.99 → 0.68) through time-based dataset redesign
-- Ran a **fair 5-fold CV comparison** revealing that Random Forest's Recall edge came from class weighting, not model capacity (ROC-AUC equivalent) — kept **Logistic Regression** for interpretability
-- Introduced **CLV-weighted targeting** (expected_loss = churn_probability × CLV), 
-  uncovering and fixing a targeting bug where low-risk, high-value customers 
-  crowded out genuinely at-risk customers
-- A/B simulation on the corrected targeting showed a **32.5% relative churn reduction**, 
-  but a **power analysis revealed the sample was underpowered (39.77% power)** — 
-  demonstrating honest statistical evaluation over cherry-picked significance
-- Demonstrated full pipeline from raw data 
-  to business decision evaluation, including cost-aware ROI estimation
+- **데이터 누수 발견 및 해결** — 정확도 0.99 → 0.68로 재설계 (시계열 기반)
+- **5-fold CV 공정 비교**로 Random Forest의 Recall 우위가 모델 성능이 아닌 클래스 가중치 효과임을 규명 (ROC-AUC 동등) — 해석 가능성을 근거로 **Logistic Regression** 유지
+- **CLV 가중 타겟팅 도입** (expected_loss = 이탈확률 × CLV) — 저위험·고가치 고객이 진짜 위험 고객을 밀어내는 타겟팅 버그를 발견하고 수정
+- 수정된 타겟팅 기준 A/B 시뮬레이션에서 **상대적 이탈률 32.5% 감소**를 확인했으나, **검정력 분석 결과 표본이 부족함(검정력 39.77%)을 확인** — 통계적으로 솔직한 평가를 지향
+- 원시 데이터에서 비즈니스 의사결정 평가까지 전체 파이프라인 구현, 비용 기반 ROI 추정 포함
 
 ---
 
-## 🎯 Objective
+## 🎯 분석 목적
 
-* Detect high-risk customers before they churn, 
-  enabling proactive intervention
-* Identify which behavioral signals best predict churn 
-  (recency, frequency, purchase interval)
-* Prioritize retention budget by risk tier 
-  (Very High / High / Medium / Low)
-* Validate that model-driven targeting reduces churn 
-  vs. no-action baseline (A/B simulation)
+* 이탈 가능성이 높은 고객을 사전에 탐지하여 선제적 개입 가능하도록 함
+* 이탈 예측에 가장 유효한 행동 신호 파악 (최근성, 구매 빈도, 구매 간격 등)
+* 위험 등급별 리텐션 예산 우선순위 설정 (매우 높음 / 높음 / 보통 / 낮음)
+* 모델 기반 타겟팅이 미조치 대비 이탈률을 실제로 낮추는지 A/B 시뮬레이션으로 검증
 
 ---
 
-## 📂 Dataset
+## 📂 데이터셋
 
 * **Online Retail Dataset**
-* Source: UCI Machine Learning Repository - Online Retail Dataset
-* Transaction-level customer purchase data
+* 출처: UCI Machine Learning Repository
+* 트랜잭션 단위 고객 구매 데이터
 
-The raw dataset is not included in this repository.
+원본 데이터셋은 이 저장소에 포함되어 있지 않습니다.
 
 ---
 
-## 🏗️ Project Pipeline
+## 🏗️ 프로젝트 파이프라인
 
 ```text
-Raw Data
-→ Data Preprocessing
-→ Feature Engineering
-→ Churn Labeling
-→ Model Training
-→ Churn Prediction
-→ Risk Segmentation
-→ Retention Strategy
-→ A/B Test Simulation
+원시 데이터
+→ 데이터 전처리
+→ 피처 엔지니어링
+→ 이탈 레이블 생성
+→ 모델 학습
+→ 이탈 예측
+→ 위험 세그멘테이션
+→ 리텐션 전략 수립
+→ A/B 테스트 시뮬레이션
 ```
 
 ---
 
-## ⚙️ Data Processing
+## ⚙️ 데이터 처리
 
-### 1. Data Preprocessing
+### 1. 데이터 전처리
 
-* Removed missing CustomerID
-* Filtered invalid transactions (Quantity ≤ 0, UnitPrice ≤ 0)
-* Converted InvoiceDate to datetime
-* Created Sales feature
+* CustomerID 누락 행 제거
+* 유효하지 않은 트랜잭션 필터링 (Quantity ≤ 0, UnitPrice ≤ 0)
+* InvoiceDate를 datetime 형식으로 변환
+* Sales 피처 생성
 
-**Output:**
+**출력 파일:**
 
 ```
 data/processed/cleaned_retail.csv
@@ -92,17 +77,17 @@ data/processed/cleaned_retail.csv
 
 ---
 
-### 2. Feature Engineering
+### 2. 피처 엔지니어링
 
-Customer-level features were created:
+고객 단위 피처를 생성했습니다:
 
-* Recency
-* Frequency
-* Monetary
-* customer_tenure
-* avg_purchase_interval
+* Recency (최근성)
+* Frequency (구매 빈도)
+* Monetary (구매 금액)
+* customer_tenure (고객 기간)
+* avg_purchase_interval (평균 구매 간격)
 
-**Output:**
+**출력 파일:**
 
 ```
 data/processed/customer_features.csv
@@ -110,41 +95,41 @@ data/processed/customer_features.csv
 
 ---
 
-## ⚠️ Initial Approach & Problem (Data Leakage)
+## ⚠️ 초기 접근 방식과 문제점 (데이터 누수)
 
-Churn was initially defined as:
+초기 이탈 정의:
 
 ```
 Recency > 90 → churn = 1
 ```
 
-However, **Recency was also used as an input feature**, leading to data leakage.
+그런데 **Recency가 입력 피처로도 사용**되어 데이터 누수가 발생했습니다.
 
-### Result:
+### 결과:
 
-* Accuracy ≈ 0.99 ~ 1.00
-* Unrealistically perfect predictions
+* 정확도 ≈ 0.99 ~ 1.00
+* 비현실적으로 완벽한 예측
 
-To validate this, Recency was removed and the model was retrained:
+검증을 위해 Recency를 피처에서 제거하고 재학습:
 
-* Accuracy dropped to ~0.74
+* 정확도가 ~0.74로 하락
 
-This confirmed that the model was relying on leakage rather than learning real patterns.
-
----
-
-## 🔁 Solution: Time-Based Data Design
-
-### Key Idea
-
-```
-Past data → Feature generation  
-Future data → Churn labeling
-```
+모델이 실제 패턴을 학습한 것이 아니라 누수에 의존하고 있었음을 확인했습니다.
 
 ---
 
-### Step 1: Snapshot Definition
+## 🔁 해결 방법: 시계열 기반 데이터 설계
+
+### 핵심 아이디어
+
+```
+과거 데이터 → 피처 생성  
+미래 데이터 → 이탈 레이블 생성
+```
+
+---
+
+### Step 1: 스냅샷 날짜 정의
 
 ```
 snapshot_date = 2011-09-01
@@ -152,10 +137,10 @@ snapshot_date = 2011-09-01
 
 ---
 
-### Step 2: Data Split
+### Step 2: 데이터 분리
 
-* Past Data → used for feature generation
-* Future Data → used for churn labeling
+* 과거 데이터 → 피처 생성에 사용
+* 미래 데이터 → 이탈 레이블 생성에 사용
 
 ```
 data/processed/past_data.csv
@@ -164,7 +149,7 @@ data/processed/future_data.csv
 
 ---
 
-### Step 3: Feature Generation (Past Only)
+### Step 3: 과거 데이터 기반 피처 생성
 
 ```
 data/processed/past_customer_features.csv
@@ -172,12 +157,12 @@ data/processed/past_customer_features.csv
 
 ---
 
-### Step 4: Future-Based Churn Label
+### Step 4: 미래 기반 이탈 레이블 생성
 
-Customers are labeled as churn if they do not purchase within 90 days after the snapshot date.
+스냅샷 날짜 이후 90일 내에 구매가 없는 고객을 이탈로 정의합니다.
 
-An earlier version of churn labeling (`create_churn_label.py`) was used in a baseline experiment that included data leakage.  
-The final pipeline uses `create_future_churn_label.py` to generate time-based labels without leakage.
+초기 버전(`create_churn_label.py`)은 데이터 누수가 포함된 베이스라인 실험에 사용되었습니다.
+최종 파이프라인은 `create_future_churn_label.py`를 사용하여 누수 없는 시계열 레이블을 생성합니다.
 
 ```
 data/processed/time_based_labeled_dataset.csv
@@ -185,239 +170,237 @@ data/processed/time_based_labeled_dataset.csv
 
 ---
 
-## 🤖 Model Training
+## 🤖 모델 학습
 
-### Models Used
+### 사용 모델
 
-* Logistic Regression : StandardScaler applied (Distance-based model)
-* Random Forest : No scaling(Tree-based model, scale-invariant), tuned with max_depth=5, min_samples_leaf=20
-
----
-
-## 📊 Model Comparison
-
-| Version | Setup                                 | Accuracy | Recall (Churn) | Insight         |
-| ------- | ------------------------------------- | -------- | -------------- | --------------- |
-| V1      | Recency-based label + Recency feature | ~0.99    | ~1.00          | Data leakage    |
-| V2      | Recency-based label without Recency   | ~0.74    | ~0.67          | Validation step |
-| V3      | Time-based dataset                    | **0.68** | **0.72**       | Realistic model |
-
-![Model Comparison](outputs/model_performance_comparison.png)
+* Logistic Regression : StandardScaler 적용 (거리 기반 모델)
+* Random Forest : 스케일링 없음 (트리기반 모델, 스케일 불변), 튜닝 파라미터 max_depth=5, min_samples_leaf=20
 
 ---
 
-## 📈 Final Results
+## 📊 모델 비교
+
+| 버전 | 설정                                  | 정확도   | Recall (이탈) | 비고            |
+| ---- | ------------------------------------- | -------- | ------------- | --------------- |
+| V1   | Recency 기반 레이블 + Recency 피처    | ~0.99    | ~1.00         | 데이터 누수     |
+| V2   | Recency 기반 레이블, Recency 피처 제거 | ~0.74    | ~0.67         | 검증 단계       |
+| V3   | 시계열 기반 데이터셋                  | **0.68** | **0.72**      | 현실적인 모델   |
+
+![모델 비교](outputs/model_performance_comparison.png)
+
+---
+
+## 📈 최종 결과
 
 ### Logistic Regression
 
-* Accuracy: **0.68**
-* Recall (churn): **0.72**
+* 정확도: **0.68**
+* Recall (이탈): **0.72**
 * ROC-AUC: **0.74**
 
 ### Random Forest
 
-* Accuracy: **0.68**
-* Recall (churn): **0.78**
+* 정확도: **0.68**
+* Recall (이탈): **0.78**
 * ROC-AUC: **0.74**
-* Tuned with max_depth=5, min_samples_leaf=20 — overfitting check: Train Accuracy 0.70 vs Test Accuracy 0.68
+* 튜닝 파라미터 max_depth=5, min_samples_leaf=20 — 과적합 점검: Train Accuracy 0.70 vs Test Accuracy 0.68
 
-Logistic Regression was kept as the final model. After tuning, Random Forest showed higher holdout Recall (0.78 vs 0.72), but a fair 5-fold CV comparison showed the gap came from class weighting, not model capacity: adding `class_weight="balanced"` to Logistic Regression raised its CV Recall to 0.79, exceeding Random Forest (0.76), while ROC-AUC stayed equivalent across all models (0.737–0.743). With equal ranking ability, Logistic Regression was kept for its interpretable coefficients.
+최종 모델은 Logistic Regression을 유지했습니다. 튜닝 후 Random Forest의 홀드아웃 Recall이 더 높았지만(0.78 vs 0.72), 5-fold CV로 공정하게 비교한 결과 이 차이는 모델 성능이 아니라 클래스 가중치에서 온 것이었습니다. Logistic Regression에 `class_weight="balanced"`를 적용하자 CV Recall이 0.79로 Random Forest(0.76)를 넘었고, ROC-AUC는 모든 모델이 동등했습니다(0.737~0.743). 순위 판별력이 같다면 계수로 해석할 수 있는 Logistic Regression이 유리하다고 판단했습니다.
 
-| Model | CV Accuracy | CV Recall | CV ROC-AUC |
-| ----- | ----------- | --------- | ---------- |
+| 모델 | CV 정확도 | CV Recall | CV ROC-AUC |
+| ---- | --------- | --------- | ---------- |
 | Logistic Regression | 0.677 ± 0.012 | 0.696 ± 0.027 | 0.737 ± 0.013 |
 | Logistic Regression (balanced) | 0.661 ± 0.012 | 0.790 ± 0.033 | 0.737 ± 0.013 |
 | Random Forest (tuned) | 0.672 ± 0.012 | 0.760 ± 0.020 | 0.743 ± 0.014 |
 
 ---
 
-## 📈 Feature Insights
+## 📈 피처 중요도 인사이트
 
-![Feature Importance](outputs/feature_importance_logistic.png)
+![피처 중요도](outputs/feature_importance_logistic.png)
 
-* Low Frequency → higher churn risk
-* Short tenure → higher churn risk
-* High Recency → higher churn risk
-* Long purchase interval → higher churn risk
+* Frequency 낮음 → 이탈 위험 높음
+* 고객 기간 짧음 → 이탈 위험 높음
+* Recency 높음 → 이탈 위험 높음
+* 평균 구매 간격 김 → 이탈 위험 높음
 
-Low engagement customers are more likely to churn.
-
----
-
-## 🎯 Risk Segmentation
-
-Customers are classified based on churn probability:
-
-* 0.0–0.5 → Low Risk
-* 0.5–0.6 → Medium Risk
-* 0.6–0.7 → High Risk
-* 0.7+ → Very High Risk
+참여도가 낮은 고객일수록 이탈 가능성이 높습니다.
 
 ---
 
-### Current Distribution (Test Set)
+## 🎯 위험 세그멘테이션
 
-The following distribution is based on the logistic regression prediction results from the test set, not the full customer population.
+이탈 확률에 따라 고객을 분류합니다:
 
-* Low Risk: 321
-* Medium Risk: 186
-* High Risk: 122
-* Very High Risk: 35
+* 0.0–0.5 → 낮은 위험
+* 0.5–0.6 → 보통 위험
+* 0.6–0.7 → 높은 위험
+* 0.7+ → 매우 높은 위험
 
 ---
 
-## 💰 CLV-Weighted Targeting (Expected Loss)
+### 현재 분포 (테스트 세트 기준)
 
-Churn probability alone doesn't tell the full story — a customer with a 90% 
-churn probability but minimal spend matters less to the business than a 60% 
-probability customer with high lifetime value.
+전체 고객 모집단이 아닌 테스트 세트의 Logistic Regression 예측 결과 기준입니다.
 
-### CLV Definition
+* 낮은 위험: 321명
+* 보통 위험: 186명
+* 높은 위험: 122명
+* 매우 높은 위험: 35명
 
-CLV is approximated as an annualized spend rate, since raw cumulative `Monetary` 
-rewards long-tenured customers over fast, high-value newer ones:
+---
+
+## 💰 CLV 가중 타겟팅 (Expected Loss)
+
+이탈 확률만으로는 충분하지 않습니다 — 이탈 확률 90%인데 소비액이 적은 고객보다, 
+이탈 확률 60%인데 생애 가치가 큰 고객이 비즈니스 입장에서 더 중요할 수 있습니다.
+
+### CLV 정의
+
+CLV는 연환산 소비 속도로 근사했습니다. 누적 `Monetary`를 그대로 쓰면 오래된 고객이 
+빠르게 소비하는 신규 고객보다 과대평가되기 때문입니다:
 
 ```
 CLV = Monetary / customer_tenure * 365
 ```
 
-Customers with `customer_tenure == 0` (single-purchase customers) fall back to 
-raw `Monetary`, since there's no time base to annualize from.
+`customer_tenure == 0`인 고객(단일 구매 고객)은 연환산할 시간 기준이 없어 
+`Monetary` 값을 그대로 사용합니다.
 
 ### Expected Loss
 
 ```
-expected_loss = churn_probability * CLV
+expected_loss = 이탈확률 * CLV
 ```
 
-This estimates the revenue at risk per customer, used to prioritize retention budget.
+고객별 위험에 노출된 매출액을 추정한 값으로, 리텐션 예산 우선순위에 사용합니다.
 
-### A Targeting Bug, Caught and Fixed
+### 발견하고 수정한 타겟팅 버그
 
-Initially, customers were ranked by `expected_loss` alone. Because CLV has a much 
-wider scale than churn_probability, the ranking ended up dominated by high-value 
-customers regardless of their actual churn risk — pulling in customers with average 
-churn_probability as low as ~38%, instead of genuinely at-risk customers (~70%+ in 
-the original experiment).
+처음에는 `expected_loss` 하나만으로 고객을 정렬했습니다. CLV의 값 범위가 
+이탈확률보다 훨씬 넓다 보니, 실제 이탈 위험과 무관하게 고가치 고객이 순위를 
+지배해버렸고, 결과적으로 타겟 그룹의 평균 이탈확률이 약 38%까지 떨어졌습니다 
+(원래 실험에서는 70% 이상이었습니다).
 
-**Fix:** a two-stage filter — first restrict to customers with `churn_probability >= 0.5` 
-(genuine risk), then rank the remaining pool by `expected_loss` and take the top 30%. 
-This restored a realistic risk profile in the targeted group.
-
----
-
-## 💡 Retention Strategy
-
-### High-Risk Customers
-
-* Discount coupons
-* Personalized recommendations
-
-### Medium-Risk Customers
-
-* Reminder emails
-* Product suggestions
-
-### Low-Risk Customers
-
-* General engagement strategies
+**해결:** 2단계 필터 적용 — 먼저 `churn_probability >= 0.5`인 고객만 후보로 거른 뒤 
+(실제 위험군), 그 안에서 `expected_loss` 기준 상위 30%를 선정합니다. 이렇게 
+타겟 그룹의 위험 프로필이 다시 현실적으로 회복되었습니다.
 
 ---
 
-## 🧪 A/B Test Simulation
+## 💡 리텐션 전략
 
-### Objective
+### 고위험 고객
 
-To validate whether targeting high-risk, high-value customers (by expected_loss) with retention strategies can effectively reduce churn.
+* 할인 쿠폰 제공
+* 개인화 추천
 
----
+### 보통 위험 고객
 
-### Experiment Design
+* 리마인더 이메일
+* 상품 제안
 
-* Step 1: Filter to customers with `churn_probability >= 0.5` (genuine risk pool)
-* Step 2: Within that pool, rank by `expected_loss` (churn_probability × CLV) and take the top 30%
-* Control: no action
-* Treatment: retention strategy applied (simulated)
-* Assumption: churn probability reduced by **8%p** — an arbitrary simulation assumption, not derived from real campaign data
-* Cost assumption: **₩5,000 per treated customer** — a placeholder, not an actual campaign cost
+### 저위험 고객
 
----
-
-### Result
-
-| Group     | Customers | Churn Rate |
-| --------- | --------: | ---------: |
-| Control   |        45 |      51.1% |
-| Treatment |        58 |      34.5% |
-
-* Absolute Lift: **16.6%p decrease**
-* Relative Improvement: **32.5% improvement**
+* 일반 참여 유도 전략
 
 ---
 
-### Statistical Significance
+## 🧪 A/B 테스트 시뮬레이션
+
+### 목적
+
+위험·가치(expected_loss) 기준으로 선정한 고위험 고객을 대상으로 한 리텐션 전략이 이탈률을 효과적으로 낮출 수 있는지 검증합니다.
+
+---
+
+### 실험 설계
+
+* 1단계: `churn_probability >= 0.5`인 고객만 후보로 필터링 (실제 위험군)
+* 2단계: 그 안에서 `expected_loss`(이탈확률 × CLV) 기준 상위 30% 선정
+* 대조군: 미조치
+* 처리군: 리텐션 전략 적용 (시뮬레이션)
+* 가정: 이탈 확률 **8%p** 감소 — 실제 캠페인 데이터에 근거하지 않은 임의 가정값
+* 비용 가정: 고객 1인당 **5,000원** — 실제 캠페인 비용이 아닌 placeholder
+
+---
+
+### 결과
+
+| 그룹   | 고객 수 | 이탈률 |
+| ------ | ------: | -----: |
+| 대조군 |      45 |  51.1% |
+| 처리군 |      58 |  34.5% |
+
+* 절대적 개선: **16.6%p 감소**
+* 상대적 개선: **32.5% 향상**
+
+---
+
+### 통계적 유의성
 
 * Z-stat: 1.6974
 * p-value: 0.0896
 
-Not statistically significant at the 0.05 level.
+0.05 기준으로 통계적으로 유의하지 않습니다.
 
 ---
 
-### Power Analysis
+### 검정력 분석 (Power Analysis)
 
 * Effect Size (Cohen's h): 0.338
-* Achieved power with current sample (45 / 58): **39.77%**
-* Required sample size per group for 80% power: **138**
+* 현재 샘플(45 / 58명) 기준 사후 검정력: **39.77%**
+* 80% 검정력 확보를 위한 그룹당 필요 샘플 수: **138명**
 
-The non-significant p-value reflects an **underpowered sample**, not an absence of effect — roughly 2.7x more customers would be needed in the targeted pool to reliably detect an effect of this size.
-
----
-
-### ROI Analysis
-
-| Metric                  |          Value |
-| ------------------------ | -------------: |
-| Customers protected (est.) |           9.6 |
-| Prevented loss value     |        ₩45,877 |
-| Total campaign cost      |       ₩290,000 |
-| Net benefit              |      -₩244,123 |
-| ROI                      |        -84.18% |
-
-At the assumed cost of ₩5,000 per customer, campaign cost exceeded the average annualized CLV of the targeted segment (~₩4,779). This suggests that, for this risk/value tier, a lower-cost channel (e.g. email reminders) would be more appropriate than a higher-cost incentive (e.g. coupons) — or that the cost assumption itself needs replacing with real campaign cost data once available.
+유의하지 않은 p-value는 효과가 없다는 뜻이 아니라 **표본이 부족했다는 뜻**입니다 — 이 정도 효과를 안정적으로 탐지하려면 타겟 풀에 약 2.7배 더 많은 고객이 필요합니다.
 
 ---
 
-### Visualization
+### ROI 분석
 
-![A/B Test Result](outputs/ab_test_result.png)
+| 지표                  |        값 |
+| ----------------------- | --------: |
+| 예상 방어 고객 수       |     9.6명 |
+| 방어된 예상 손실액      |  45,877원 |
+| 캠페인 총 비용          | 290,000원 |
+| 순이익                  | -244,123원 |
+| ROI                     |   -84.18% |
 
----
-
-### Interpretation
-
-CLV-weighted targeting showed a directionally positive effect (34.5% vs 51.1% churn rate), but two caveats limit how far this can be taken at face value: the result is not statistically significant given the current sample size, and the assumed campaign cost would not have been profitable for this segment. Both statistical power and cost realism should be addressed before scaling this into a real campaign.
-
-This project connects prediction results to business decision-making evaluation — including the discipline to report when a result isn't yet strong enough to act on.
-
----
-
-### Note
-
-The 8%p treatment effect and the ₩5,000 cost-per-treatment are both arbitrary simulation assumptions, not derived from real campaign data.
+1인당 5,000원이라는 비용 가정 하에서는, 타겟 세그먼트의 평균 연환산 CLV(약 4,779원)보다 캠페인 비용이 더 큽니다. 이는 이 위험·가치 구간에는 쿠폰 같은 고비용 인센티브보다 이메일 리마인더 같은 저비용 채널이 더 적합하다는 뜻이거나, 실제 캠페인 비용 데이터를 확보하면 이 가정값 자체를 교체해야 한다는 뜻입니다.
 
 ---
 
-## 📁 Project Structure
+### 시각화
 
-Some directories (e.g., `notebooks/`, `models/`, `config/`) are reserved for future extensions such as experimentation, model persistence, and configuration management.
+![A/B 테스트 결과](outputs/ab_test_result.png)
+
+---
+
+### 해석
+
+CLV 가중 타겟팅은 방향성 있는 긍정적 효과를 보였습니다(이탈률 34.5% vs 51.1%). 다만 두 가지 한계가 있습니다 — 현재 샘플 크기로는 통계적으로 유의하지 않고, 가정된 캠페인 비용으로는 이 세그먼트에서 수익성이 없습니다. 실제 캠페인으로 확장하기 전에 통계적 검정력과 비용 현실성 둘 다 보완해야 합니다.
+
+이 프로젝트는 예측 결과를 실제 비즈니스 의사결정 평가로 연결합니다 — 아직 행동으로 옮기기엔 충분하지 않은 결과를 솔직하게 보고하는 것까지 포함해서요.
+
+---
+
+### 주의사항
+
+8%p 처리 효과와 1인당 5,000원 비용 가정 모두 실제 캠페인 데이터가 아닌 임의 가정값입니다.
+
+---
+
+## 📁 프로젝트 구조
+
+`notebooks/`, `models/`, `config/` 디렉토리는 향후 실험, 모델 저장, 설정 관리 등을 위해 예약되어 있습니다.
 
 ```
 customer-retention-ai/
 │
-├── data/                         # not committed (gitignored)
+├── data/                         # 커밋되지 않음 (gitignore)
 │   ├── raw/
-│   │   └── online_retail.csv   # manually downloaded, not committed
+│   │   └── online_retail.csv   # 직접 다운로드 필요, 커밋되지 않음
 │   │
 │   └── processed/
 │       ├── cleaned_retail.csv
@@ -461,48 +444,40 @@ customer-retention-ai/
 
 ---
 
-## 📥 Dataset Preparation
+## 📥 데이터셋 준비
 
-This project uses the **Online Retail Dataset** from the UCI Machine Learning Repository.
+이 프로젝트는 UCI Machine Learning Repository의 **Online Retail Dataset**을 사용합니다.
 
-To run this project locally:
+로컬에서 실행하려면:
 
-1. Download the Online Retail dataset from the UCI Machine Learning Repository.
-2. Convert or save the dataset as `online_retail.csv`.
-3. Place the file in the following path:
+1. UCI Machine Learning Repository에서 Online Retail 데이터셋을 다운로드합니다.
+2. 파일명을 `online_retail.csv`로 저장합니다.
+3. 아래 경로에 파일을 위치시킵니다:
 
 ```text
 data/raw/online_retail.csv
 ```
 
-The raw dataset is not included in this repository because it is excluded by `.gitignore`.
-
-```gitignore
-data/raw/*.csv
-```
-
-This keeps the repository lightweight and avoids committing raw external data.
+원본 데이터셋은 `.gitignore`에 의해 저장소에 포함되지 않습니다.
 
 ---
 
-## 🧠 Key Takeaways
+## 🧠 핵심 배운 점
 
-1. Data leakage can severely distort model performance — an accuracy of ~0.99 should always trigger suspicion
-2. Features and labels must not share the same time window — a snapshot-based design prevents future-data leakage
-3. Frequency and customer_tenure carry the largest coefficients — engagement depth explains churn more strongly than recency alone
-4. Machine learning outputs should be connected to business actions
-5. A/B test simulation helps frame how a strategy would be evaluated — 
-   but real validation requires a live experiment with an adequate sample size
-6. Statistical significance depends on sample size — a non-significant 
-   result is a signal to run a power analysis, not a verdict that the 
-   effect doesn't exist
-7. Risk probability alone isn't enough for targeting — without weighting 
-   by customer value (CLV), retention budget can be misallocated to 
-   low-value customers
-   
+1. 데이터 누수는 모델 성능을 심각하게 왜곡할 수 있다 — 정확도 0.99가 나왔을 때 항상 의심하라
+2. 피처와 레이블은 같은 시간 범위를 공유하면 안 된다 — 스냅샷 기반 설계로 미래 데이터 누수를 방지
+3. Frequency와 customer_tenure의 계수가 가장 크다 — 최근성보다 구매 빈도와 관계 기간이 이탈을 더 강하게 설명한다
+4. 머신러닝 결과는 비즈니스 액션으로 연결되어야 한다
+5. A/B 시뮬레이션은 전략을 어떻게 평가할지 설계하는 도구다 — 
+   실제 검증에는 충분한 표본을 갖춘 실험이 필요하다
+6. 통계적 유의성은 샘플 크기에 좌우된다 — 유의하지 않은 결과는 "효과가 없다"는 
+   결론이 아니라 검정력 분석을 해봐야 한다는 신호다
+7. 이탈 확률만으로는 타겟팅이 충분하지 않다 — 고객 가치(CLV)로 가중하지 않으면 
+   리텐션 예산이 저가치 고객에게 잘못 배분될 수 있다
+
 ---
 
-## 🚀 Tech Stack
+## 🚀 기술 스택
 
 * Python (pandas, numpy)
 * scikit-learn
@@ -512,95 +487,96 @@ This keeps the repository lightweight and avoids committing raw external data.
 
 ---
 
-## 📌 Conclusion
+## 📌 결론
 
-This project demonstrates the transition from basic data analysis to an end-to-end ML pipeline.
+이 프로젝트는 기초 데이터 분석에서 end-to-end 머신러닝 파이프라인으로의 전환을 보여줍니다.
 
-It not only predicts churn but also evaluates retention strategies through simulation — reporting honestly that the effect is not yet statistically significant and quantifying the sample size needed — bridging the gap between machine learning and real-world decision-making.
+단순한 이탈 예측을 넘어 시뮬레이션으로 리텐션 전략을 평가하고,
+효과가 아직 유의하지 않다는 점과 필요한 표본 크기까지 솔직하게 제시하며,
+머신러닝과 실제 비즈니스 의사결정 사이의 간극을 연결합니다.
 
-## 🚀 How to Run
+## 🚀 실행 방법
 
-### 1. Clone repository
+### 1. 저장소 클론
 
 ```bash
 git clone https://github.com/hyunsung6608/customer-retention-ai.git
 cd customer-retention-ai
 ```
 
-### 2. Install dependencies
+### 2. 의존성 설치
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Prepare dataset
+### 3. 데이터셋 준비
 
-Download the Online Retail dataset, save it as `online_retail.csv`, and place it in:
+Online Retail 데이터셋을 다운로드하여 `online_retail.csv`로 저장 후 아래 경로에 위치:
 
 ```text
 data/raw/online_retail.csv
 ```
 
-### 4. Run data preprocessing
+### 4. 데이터 전처리 실행
 
 ```bash
 python scripts/preprocess.py
 ```
 
-### 5. Create time-based dataset
+### 5. 시계열 기반 데이터셋 생성
 
 ```bash
 python scripts/create_time_based_dataset.py
 ```
 
-### 6. Create past features for leakage prevention
+### 6. 누수 방지를 위한 과거 피처 생성
 
 ```bash
 python scripts/create_past_features.py
 ```
 
-### 7. Create churn label using future window
+### 7. 미래 윈도우 기반 이탈 레이블 생성
 
 ```bash
 python scripts/create_future_churn_label.py
 ```
 
-### 8. Train model
+### 8. 모델 학습
 
 ```bash
 python scripts/train_model.py
 ```
 
-### 9. Compare models with 5-fold CV (optional)
+### 9. 5-fold CV 모델 비교 (선택)
 
 ```bash
 python scripts/compare_models_cv.py
 ```
 
-### 10. Run A/B test simulation
+### 10. A/B 테스트 시뮬레이션 실행
 
 ```bash
 python scripts/simulate_ab_test.py
 ```
 
-### 11. Generate model comparison visualization
+### 11. 모델 비교 시각화 생성
 
 ```bash
 python scripts/visualize_results.py
 ```
 
-## 🔬 Reproducing the Data Leakage Experiment (Optional)
-The following scripts are not part of the final pipeline.
-They are provided to reproduce the initial data leakage experiment described in the Data Leakage section.
+## 🔬 데이터 누수 실험 재현 (선택사항)
+아래 스크립트는 최종 파이프라인과 무관합니다.
+데이터 누수 섹션에서 설명한 초기 실험을 직접 재현해보고 싶을 때 사용합니다.
 
 ```bash
-# Step 1: Generate customer-level features from full dataset
+# Step 1: 전체 데이터셋 기반 고객 피처 생성
 python scripts/feature_engineering.py
 
-# Step 2: Assign churn labels using Recency threshold (leakage-prone)
+# Step 2: Recency 임계값 기반 이탈 레이블 생성 (누수 포함)
 python scripts/create_churn_label.py
 ```
 
-⚠️ These scripts use Recency as both a feature and the basis for churn labeling,
-which causes data leakage and results in unrealistically high accuracy (~0.99).
-Do not use these outputs for model training.
+⚠️ 이 스크립트들은 Recency를 피처와 레이블 생성 기준으로 동시에 사용하여 데이터 누수가 발생하고 정확도가 비현실적으로 높게 (~0.99) 나옵니다.
+이 결과물을 모델 학습에 사용하지 마세요.
