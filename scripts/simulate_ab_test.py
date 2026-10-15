@@ -16,8 +16,14 @@ def main():
     customer_output_path = output_dir / "ab_test_customers.csv"
     plot_output_path = output_dir / "ab_test_result.png"
 
-    # 캠페인(쿠폰 등) 1인당 비용 가정 - 임의 가정값이며 실제 캠페인 비용으로 교체 필요
-    COST_PER_TREATMENT = 5000  # 단위: 원
+     # 통화 단위: 원본 데이터 UnitPrice 기준 영국 파운드(£)
+    CURRENCY = "£"
+
+    # 처리군 이탈 확률 감소 가정 (실제 캠페인 데이터 없음, 임의 가정값)
+    ASSUMED_EFFECT = 0.08
+
+    # 캠페인 1인당 비용 가정 (임의 가정값, 실제 비용으로 교체 필요)
+    COST_PER_TREATMENT = 5  # 단위: £
 
     df = pd.read_csv(input_path)
 
@@ -31,8 +37,8 @@ def main():
 
     print("위험군 후보 수:", len(candidates))
     print("고위험 고객 수:", len(ab_df))
-    print("expected_loss threshold:", round(threshold, 2))
-    print("타겟 고객의 총 expected_loss:", round(ab_df["expected_loss"].sum(), 2))
+    print("expected_loss threshold:", f"{CURRENCY}{round(threshold, 2)}")
+    print("타겟 고객의 총 expected_loss:", f"{CURRENCY}{round(ab_df['expected_loss'].sum(), 2)}")
 
     # A/B 그룹 랜덤 배정
     np.random.seed(42)
@@ -46,7 +52,7 @@ def main():
         p = row["churn_probability"]
 
         if row["group"] == "treatment":
-            p = max(0, p - 0.08)
+            p = max(0, p - ASSUMED_EFFECT)
 
         return np.random.binomial(1, p)
 
@@ -94,26 +100,62 @@ def main():
     else:
         print("통계적으로 유의미하지 않음")
 
-    # ROI 계산
+    # ROI 계산 (관측 lift가 아닌 가정 효과 기준 기대값)
     treatment_customers = int(summary.loc["treatment", "customers"])
     avg_clv_treatment = ab_df.loc[ab_df["group"] == "treatment", "clv"].mean()
 
-    prevented_customers = absolute_lift * treatment_customers
-    prevented_loss_value = prevented_customers * avg_clv_treatment
+    expected_prevented = ASSUMED_EFFECT * treatment_customers
+    prevented_loss_value = expected_prevented * avg_clv_treatment
     total_cost = COST_PER_TREATMENT * treatment_customers
     net_benefit = prevented_loss_value - total_cost
     roi = net_benefit / total_cost if total_cost != 0 else 0
 
-    print("\n=== ROI 분석 ===")
-    print(f"예상 방어 고객 수: {prevented_customers:.1f}명")
-    print(f"방어된 예상 손실액: {prevented_loss_value:,.0f}원")
-    print(f"캠페인 총 비용: {total_cost:,.0f}원")
-    print(f"순이익: {net_benefit:,.0f}원")
-    print(f"ROI: {roi:.2%}")
+    # 손익분기 1인당 비용: 이 금액 이하이면 캠페인이 이익
+    break_even_cost = prevented_loss_value / treatment_customers
 
-    # 검정력 분석 (Power Analysis)
-    effect_size = proportion_effectsize(treatment_rate, control_rate)
+    print("\n=== ROI 분석 (가정 효과 기준) ===")
+    print(f"가정 효과: 이탈 확률 {ASSUMED_EFFECT:.0%}p 감소")
+    print(f"처리군 평균 연환산 CLV: {CURRENCY}{avg_clv_treatment:,.0f}")
+    print(f"기대 방어 고객 수: {expected_prevented:.1f}명")
+    print(f"방어된 기대 매출 (연환산, 마진 미반영): {CURRENCY}{prevented_loss_value:,.0f}")
+    print(f"캠페인 총 비용(가정): {CURRENCY}{total_cost:,.0f}")
+    print(f"순이익: {CURRENCY}{net_benefit:,.0f}")
+    print(f"ROI (매출 기준 상한): {roi:.2%}")
+    print(f"손익분기 1인당 비용 (매출 기준 상한): {CURRENCY}{break_even_cost:,.0f}")
+
+    # 검정력 분석 (Power Analysis) - 가정 효과 기준 (실험 설계용)
     power_model = NormalIndPower()
+
+    # 기준 이탈률: 타겟 고객 전체의 평균 예측 이탈 확률 (관측 대조군 이탈률은 표본 노이즈 포함)
+    baseline_churn_rate = ab_df["churn_probability"].mean()
+    assumed_treatment_rate = baseline_churn_rate - ASSUMED_EFFECT
+    assumed_effect_size_h = proportion_effectsize(baseline_churn_rate, assumed_treatment_rate)
+
+    # 현재 표본 크기로 가정 효과를 잡아낼 확률
+    assumed_power = power_model.power(
+        effect_size=assumed_effect_size_h,
+        nobs1=nobs[0],
+        alpha=0.05,
+        ratio=nobs[1] / nobs[0]
+    )
+
+    # 가정 효과를 80% 검정력으로 잡기 위한 그룹당 필요 표본 수
+    assumed_required_n_per_group = power_model.solve_power(
+        effect_size=assumed_effect_size_h,
+        alpha=0.05,
+        power=0.8,
+        ratio=1
+    )
+
+    print("\n=== Power Analysis (가정 효과 기준) ===")
+    print(f"기준 이탈률(타겟 평균 예측 확률): {baseline_churn_rate:.1%}")
+    print(f"가정 처리군 이탈률: {assumed_treatment_rate:.1%}")
+    print(f"Effect Size (Cohen's h): {assumed_effect_size_h:.3f}")
+    print(f"현재 표본 검정력: {assumed_power:.1%}")
+    print(f"80% 검정력 확보를 위한 그룹당 필요 표본 수: {assumed_required_n_per_group:.0f}명")
+
+    # 참고용: 관측 효과 기준 (사후 검정력, 사실상 p값의 재표현)
+    effect_size = proportion_effectsize(treatment_rate, control_rate)
 
     # 사후 검정력: 지금 샘플 크기로 이 효과를 실제로 잡아냈을 확률
     achieved_power = power_model.power(
@@ -131,7 +173,7 @@ def main():
         ratio=1
     )
 
-    print("\n=== Power Analysis ===")
+    print("--- 참고용: 관측 효과 기준 ---")
     print(f"Effect Size (Cohen's h): {effect_size:.4f}")
     print(f"현재 샘플 기준 사후 검정력: {achieved_power:.2%}")
     print(f"80% 검정력 확보를 위한 그룹당 필요 샘플 수: {required_n_per_group:.0f}명")
@@ -146,6 +188,9 @@ def main():
             "relative_lift",
             "z_stat",
             "p_value",
+            "assumed_effect",
+            "expected_prevented",
+            "break_even_cost",
             "cost_per_treatment",      
             "prevented_loss_value",   
             "total_cost",             
@@ -153,7 +198,11 @@ def main():
             "roi",
             "effect_size_cohens_h",
             "achieved_power",
-            "required_n_per_group"               
+            "required_n_per_group",
+            "baseline_churn_rate",
+            "assumed_effect_size_h",
+            "assumed_power",
+            "assumed_required_n_per_group"
         ],
         "value": [
             threshold,
@@ -163,6 +212,9 @@ def main():
             relative_lift,
             stat,
             p_value,
+            ASSUMED_EFFECT,
+            expected_prevented,
+            break_even_cost,
             COST_PER_TREATMENT,        
             prevented_loss_value,      
             total_cost,                
@@ -170,7 +222,11 @@ def main():
             roi,
             effect_size,
             achieved_power,
-            required_n_per_group                        
+            required_n_per_group,
+            baseline_churn_rate,
+            assumed_effect_size_h,
+            assumed_power,
+            assumed_required_n_per_group
         ]
     })
 
