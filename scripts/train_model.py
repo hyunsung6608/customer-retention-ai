@@ -141,10 +141,15 @@ def main():
     # 트리 기반 모델로 피처 스케일에 영향을 받지 않아 스케일링 없이 원본 데이터로 학습
     rf_model = RandomForestClassifier(
         n_estimators=100,
+        max_depth=5,
+        min_samples_leaf=20,
         random_state=42,
         class_weight="balanced"
     )
     rf_model.fit(X_train, y_train)
+    # RF 과적합 점검: train/test 정확도 차이 확인 (튜닝 근거)
+    print("RF Train Accuracy:", rf_model.score(X_train, y_train))
+    print("RF Test Accuracy:", rf_model.score(X_test, y_test))
 
     # 예측
     rf_y_pred = rf_model.predict(X_test)
