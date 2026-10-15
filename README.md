@@ -24,9 +24,7 @@ more realistic and reliable model.
 
 - Identified and resolved **data leakage** 
   (Accuracy 0.99 → 0.68) through time-based dataset redesign
-- Selected **Logistic Regression** over Random Forest 
-  for higher Recall on churn class (0.72 vs 0.54), 
-  prioritizing detection over precision
+- Ran a **fair 5-fold CV comparison** revealing that Random Forest's Recall edge came from class weighting, not model capacity (ROC-AUC equivalent) — kept **Logistic Regression** for interpretability
 - Introduced **CLV-weighted targeting** (expected_loss = churn_probability × CLV), 
   uncovering and fixing a targeting bug where low-risk, high-value customers 
   crowded out genuinely at-risk customers
@@ -192,7 +190,7 @@ data/processed/time_based_labeled_dataset.csv
 ### Models Used
 
 * Logistic Regression : StandardScaler applied (Distance-based model)
-* Random Forest : No scaling(Tree-based model, scale-invariant)
+* Random Forest : No scaling(Tree-based model, scale-invariant), tuned with max_depth=5, min_samples_leaf=20
 
 ---
 
@@ -218,13 +216,18 @@ data/processed/time_based_labeled_dataset.csv
 
 ### Random Forest
 
-* Accuracy: **0.63**
-* Recall (churn): **0.54**
-* ROC-AUC: **0.69**
+* Accuracy: **0.68**
+* Recall (churn): **0.78**
+* ROC-AUC: **0.74**
+* Tuned with max_depth=5, min_samples_leaf=20 — overfitting check: Train Accuracy 0.70 vs Test Accuracy 0.68
 
-Logistic Regression was selected as the final model due to higher Recall on the churn class (0.72 vs 0.54), 
-as missing a churning customer is more costly than 
-a false alarm.
+Logistic Regression was kept as the final model. After tuning, Random Forest showed higher holdout Recall (0.78 vs 0.72), but a fair 5-fold CV comparison showed the gap came from class weighting, not model capacity: adding `class_weight="balanced"` to Logistic Regression raised its CV Recall to 0.79, exceeding Random Forest (0.76), while ROC-AUC stayed equivalent across all models (0.737–0.743). With equal ranking ability, Logistic Regression was kept for its interpretable coefficients.
+
+| Model | CV Accuracy | CV Recall | CV ROC-AUC |
+| ----- | ----------- | --------- | ---------- |
+| Logistic Regression | 0.677 ± 0.012 | 0.696 ± 0.027 | 0.737 ± 0.013 |
+| Logistic Regression (balanced) | 0.661 ± 0.012 | 0.790 ± 0.033 | 0.737 ± 0.013 |
+| Random Forest (tuned) | 0.672 ± 0.012 | 0.760 ± 0.020 | 0.743 ± 0.014 |
 
 ---
 
@@ -433,6 +436,7 @@ customer-retention-ai/
 │   ├── create_past_features.py
 │   ├── create_future_churn_label.py
 │   ├── train_model.py
+│   ├── compare_models_cv.py
 │   ├── simulate_ab_test.py
 │   └── visualize_results.py
 │
@@ -567,13 +571,19 @@ python scripts/create_future_churn_label.py
 python scripts/train_model.py
 ```
 
-### 9. Run A/B test simulation
+### 9. Compare models with 5-fold CV (optional)
+
+```bash
+python scripts/compare_models_cv.py
+```
+
+### 10. Run A/B test simulation
 
 ```bash
 python scripts/simulate_ab_test.py
 ```
 
-### 10. Generate model comparison visualization
+### 11. Generate model comparison visualization
 
 ```bash
 python scripts/visualize_results.py

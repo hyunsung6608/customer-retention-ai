@@ -18,7 +18,7 @@ end-to-end 이탈 예측 파이프라인을 구축하고, A/B 테스트 시뮬�
 ## ⚡ 핵심 성과
 
 - **데이터 누수 발견 및 해결** — 정확도 0.99 → 0.68로 재설계 (시계열 기반)
-- **Logistic Regression 채택** — Random Forest 대비 이탈 클래스 Recall 우위 (0.72 vs 0.54), 미탐지 비용을 우선 고려
+- **5-fold CV 공정 비교**로 Random Forest의 Recall 우위가 모델 성능이 아닌 클래스 가중치 효과임을 규명 (ROC-AUC 동등) — 해석 가능성을 근거로 **Logistic Regression** 유지
 - **CLV 가중 타겟팅 도입** (expected_loss = 이탈확률 × CLV) — 저위험·고가치 고객이 진짜 위험 고객을 밀어내는 타겟팅 버그를 발견하고 수정
 - 수정된 타겟팅 기준 A/B 시뮬레이션에서 **상대적 이탈률 32.5% 감소**를 확인했으나, **검정력 분석 결과 표본이 부족함(검정력 39.77%)을 확인** — 통계적으로 솔직한 평가를 지향
 - 원시 데이터에서 비즈니스 의사결정 평가까지 전체 파이프라인 구현, 비용 기반 ROI 추정 포함
@@ -175,7 +175,7 @@ data/processed/time_based_labeled_dataset.csv
 ### 사용 모델
 
 * Logistic Regression : StandardScaler 적용 (거리 기반 모델)
-* Random Forest : 스케일링 없음 (트리기반 모델, 스케일 불변)
+* Random Forest : 스케일링 없음 (트리기반 모델, 스케일 불변), 튜닝 파라미터 max_depth=5, min_samples_leaf=20
 
 ---
 
@@ -201,12 +201,18 @@ data/processed/time_based_labeled_dataset.csv
 
 ### Random Forest
 
-* 정확도: **0.63**
-* Recall (이탈): **0.54**
-* ROC-AUC: **0.69**
+* 정확도: **0.68**
+* Recall (이탈): **0.78**
+* ROC-AUC: **0.74**
+* 튜닝 파라미터 max_depth=5, min_samples_leaf=20 — 과적합 점검: Train Accuracy 0.70 vs Test Accuracy 0.68
 
-이탈 클래스 Recall이 더 높은 Logistic Regression을 최종 모델로 선택했습니다 (0.72 vs 0.54).
-이탈 고객을 놓치는 비용이 정상 고객을 잘못 분류하는 비용보다 크기 때문입니다.
+최종 모델은 Logistic Regression을 유지했습니다. 튜닝 후 Random Forest의 홀드아웃 Recall이 더 높았지만(0.78 vs 0.72), 5-fold CV로 공정하게 비교한 결과 이 차이는 모델 성능이 아니라 클래스 가중치에서 온 것이었습니다. Logistic Regression에 `class_weight="balanced"`를 적용하자 CV Recall이 0.79로 Random Forest(0.76)를 넘었고, ROC-AUC는 모든 모델이 동등했습니다(0.737~0.743). 순위 판별력이 같다면 계수로 해석할 수 있는 Logistic Regression이 유리하다고 판단했습니다.
+
+| 모델 | CV 정확도 | CV Recall | CV ROC-AUC |
+| ---- | --------- | --------- | ---------- |
+| Logistic Regression | 0.677 ± 0.012 | 0.696 ± 0.027 | 0.737 ± 0.013 |
+| Logistic Regression (balanced) | 0.661 ± 0.012 | 0.790 ± 0.033 | 0.737 ± 0.013 |
+| Random Forest (tuned) | 0.672 ± 0.012 | 0.760 ± 0.020 | 0.743 ± 0.014 |
 
 ---
 
@@ -413,6 +419,7 @@ customer-retention-ai/
 │   ├── create_past_features.py
 │   ├── create_future_churn_label.py
 │   ├── train_model.py
+│   ├── compare_models_cv.py
 │   ├── simulate_ab_test.py
 │   └── visualize_results.py
 │
@@ -542,13 +549,19 @@ python scripts/create_future_churn_label.py
 python scripts/train_model.py
 ```
 
-### 9. A/B 테스트 시뮬레이션 실행
+### 9. 5-fold CV 모델 비교 (선택)
+
+```bash
+python scripts/compare_models_cv.py
+```
+
+### 10. A/B 테스트 시뮬레이션 실행
 
 ```bash
 python scripts/simulate_ab_test.py
 ```
 
-### 10. 모델 비교 시각화 생성
+### 11. 모델 비교 시각화 생성
 
 ```bash
 python scripts/visualize_results.py
